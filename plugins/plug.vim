@@ -21,10 +21,11 @@
     " Help with surrounding '"([{ etc
     Plug 'tpope/vim-surround'
     " Show neat indent guides
-    Plug 'nathanaelkane/vim-indent-guides'
+    "Plug 'nathanaelkane/vim-indent-guides'
     " Fuzzy Finder, you don't need anything else
     Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
     Plug 'junegunn/fzf.vim'
+    Plug 'antoinemadec/coc-fzf'
     " Shows content of registers
     Plug 'junegunn/vim-peekaboo'
     " Allow repeat of much more
@@ -52,11 +53,15 @@
     Plug 'tbabej/taskwiki'
     " Databases connections
     Plug 'tpope/vim-dadbod'
+    " RESTFul client
+    Plug 'diepm/vim-rest-console'
+    " treesitter
+    "Plug 'nvim-treesitter/nvim-treesitter'
   " }}}
 
   " Autocomplete {{{
     " CoC {{{
-      Plug 'neoclide/coc.nvim', {'branch': 'release'}
+      Plug 'neoclide/coc.nvim', {'branch': 'release', 'for': 'clojure'}
     " }}}
     " Nvim LSP {{{
       "Plug 'neovim/nvim-lsp'
@@ -94,7 +99,7 @@
 
     " Clojure {{{
       Plug 'eraserhd/parinfer-rust', { 'do': 'cargo build --release', 'for': 'clojure' }
-      "Plug 'Olical/conjure', { 'for': 'clojure', 'tag': 'v4.3.1' }
+      Plug 'Olical/conjure', { 'for': 'clojure', 'tag': 'v4.11.0' }
       "Plug 'bakpakin/fennel.vim', { 'for': ['clojure', 'fennel'] }
       " Folding for clojure
       Plug 'gberenfield/cljfold.vim', { 'for': 'clojure' }
@@ -129,7 +134,7 @@
   " }}}
 " }}}
 
-" Plugins Config {{{ 
+" Plugins Config {{{
   " Which Key {{{
     " Must be as soon as possible to prevent intervention with WhichKey
     nnoremap <Space> <nop>
@@ -179,13 +184,13 @@
   " }}}
   " Indent Guides {{{
     " Enable guides on vim startup
-    let g:indent_guides_enable_on_vim_startup = 1
+    "let g:indent_guides_enable_on_vim_startup = 1
     " Set guides size to be slim
-    let g:indent_guides_guide_size = 2
+    "let g:indent_guides_guide_size = 2
     " Disable guides for...
-    let g:indent_guides_exclude_filetypes = ['help']
+    "let g:indent_guides_exclude_filetypes = ['help']
     " Disable indent guides mapping
-    let g:indent_guides_default_mapping = 0
+    "let g:indent_guides_default_mapping = 0
   " }}}
   " FZF {{{
     set rtp+=~/scoop/apps/fzf/current
@@ -230,21 +235,28 @@
         call setwinvar(win, '&winhighlight', 'NormalFloat:Normal')
       endfunction
 
+      "let g:fzf_layout = { 'window': {'width': 0.9, 'height': 0.6, 'style': 'minimal' } }
       let g:fzf_layout = { 'window': 'call FloatingFZF()' }
     endif
   " }}}
+  " Coc-FZF/Preview {{{
+    " Coc-FZF {{{
+      let g:coc_fzf_opts = []
+      let g:coc_fzf_preview = ''
+    " }}}
+    " Coc-FZF-Preview {{{
+      let g:fzf_preview_default_fzf_options = { '--preview-window': 'wrap' }
+    " }}}
+  " }}}
   " Golang {{{
-    let g:go_highlight_functions = 1
-    let g:go_highlight_methods = 1
-    let g:go_highlight_fields = 1
-    let g:go_highlight_types = 1
-    let g:go_highlight_operators = 1
-    let g:go_highlight_build_constraints = 1
-    let g:go_fmt_command = "goimports"
-    let g:go_fmt_expiremental = 1
+    let g:go_code_completion_enabled = 1
+    let g:go_fmt_command = "gopls"
+    let g:go_doc_keywordprg_enabled = 1
+    let g:go_def_mapping_enabled = 1
     let g:go_term_enabled = 1
   " }}}
   " Conjure {{{
+    let g:conjure#mapping#doc_word = v:false
     " Disable Shift+K Mapping
     "augroup conjure
       "" this one is which you're most likely to use?
@@ -260,10 +272,22 @@
       let g:onedark_termcolors = 16
 
     " }}}
+    " onedark.vim override: Don't set a background color when running in a terminal;
+    " just use the terminal's background color
+    " `gui` is the hex color code used in GUI mode/nvim true-color mode
+    " `cterm` is the color code used in 256-color mode
+    " `cterm16` is the color code used in 16-color mode
+    "if (has("autocmd") && !has("gui_running"))
+      "augroup colorset
+        "autocmd!
+        "let s:white = { "gui": "#ABB2BF", "cterm": "145", "cterm16" : "7" }
+        "autocmd ColorScheme * call onedark#set_highlight("Normal", { "fg": s:white }) " `bg` will not be styled since there is no `bg` setting
+      "augroup END
+    "endif
     "Use 24-bit (true-color) mode in Vim/Neovim when outside tmux.
     let $NVIM_TUI_ENABLE_TRUE_COLOR=1
     set background=dark                        " Set dark for transparent window
-    set guifont=xos4\ Terminess\ Powerline:h20 " Set font
+    set guifont=Hack\ Nerd\ Font:h20 " Set font
     set termguicolors                          " Set truecolor
     colorscheme  onedark                       " Nice color scheme
     " Transaprency {{{
@@ -272,5 +296,17 @@
       " Cursor line coloring
       "hi CursorLine ctermbg=16 ctermfg=None
     " }}}
+  " }}}
+  " TreeSitter {{{
+"lua <<EOF
+"require'nvim-treesitter.configs'.setup {
+  "ensure_installed = "maintained",
+  "-- Modules and its options go here
+  "highlight = {
+    "enable = false,
+    "use_languagetree = false,
+  "},
+"}
+"EOF
   " }}}
 " }}}

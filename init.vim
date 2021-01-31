@@ -59,10 +59,13 @@
     set signcolumn=yes:2                            " Always show signs column
     set scrolljump=-10                              " Lines to scroll when cursor leaves screen
     set scrolloff=3                                 " Minimum lines to keep above and below cursor
+    set sidescroll=5                                " Columns to scroll when hitting horizontal end of screen
+    set sidescrolloff=15                            " Minimum characters to show on horizontal scroll
     set nospell                                     " Enable spell checker
     set timeoutlen=500                              " Set shorter timeout for mappings
     set cmdheight=2                                 " Little bit more space for messages
     set updatetime=300                              " faster CursorHold action
+    set jumpoptions=stack
   " }}}
 
   " Search setup {{{
@@ -112,9 +115,9 @@
 " }}}
 
 " Init plugins
-so ~/.config/nvim_new/plugins/plug.vim
+so ~/.config/nvim/plugins/plug.vim
 " Init bindings
-so ~/.config/nvim_new/bindings/bindings.vim
+so ~/.config/nvim/bindings/bindings.vim
 
 
 " Functions {{{

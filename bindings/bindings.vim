@@ -165,23 +165,6 @@ so ~/.config/nvim/bindings/whichkey.vim
       map <silent><Leader>c<space> <Plug>NERDCommenterToggle
     " }}}
   " }}}
-  " Languages {{{
-    " XXX: Languages are spread to corresponding ftplugins!
-    " Golang {{{
-      fun! Fgolang_maps()
-        nnoremap <buffer><silent><localleader>r <Plug>(go-run)
-        nnoremap <buffer><silent><localleader>i <Plug>(go-info)
-        nnoremap <buffer><silent><localleader>t <Plug>(go-test-func)
-        nnoremap <buffer><silent><localleader>d <Plug>(go-doc-vertical)
-        nnoremap <buffer><silent><localleader>e <Plug>(go-run)
-        nnoremap <buffer><silent><localleader>f :GoFillStruct<CR>
-      endf
-      augroup golang_maps
-        au!
-        au BufRead,BufNewFile *.go call Fgolang_maps()
-      augroup end
-    " }}}
-  " }}}
   " CoC {{{
     " General {{{
       " Extensions could be used for CoC to have more powerful features
@@ -235,17 +218,18 @@ so ~/.config/nvim/bindings/whichkey.vim
         if (index(['vim', 'help'], &filetype) >= 0)
           execute 'tag '.expand('<cword>')
         else
-          call CocAction('jumpDefinition')
+          call CocAction('jumpDefinition', v:false)
         endif
       endf
 
+      " Now jump usage
       nnoremap <silent> K :call <SID>show_doc()<CR>
 
       " GoTos
       nnoremap <silent><C-]> :call <SID>jump_definition()<CR>
-      nnoremap <silent><leader>ld :call CocAction('jumpDeclaration')<CR>
-      nnoremap <silent><leader>li :call CocAction('jumpImplementation')<CR>
-      nnoremap <silent><leader>lr :call CocAction('jumpReferences')<CR>
+      nnoremap <silent><leader>ld :call CocAction('jumpDeclaration', v:false)<CR>
+      nnoremap <silent><leader>li :call CocAction('jumpImplementation', v:false)<CR>
+      nnoremap <silent><leader>lr :call CocAction('jumpReferences', v:false)<CR>
 
       " Use `[g` and `]g` to navigate diagnostics
       nmap <silent> [e <Plug>(coc-diagnostic-prev)
@@ -256,7 +240,7 @@ so ~/.config/nvim/bindings/whichkey.vim
       command! -nargs=0 OR :call CocAction('runCommand', 'editor.action.organizeImport')
 
       " Other helpful stuff
-      nnoremap <silent><leader>gc :call CocAction('codeAction')<CR>
+      nnoremap <silent><leader>gC :call CocAction('codeAction')<CR>
       nnoremap <silent><leader>gR :call CocAction('rename')<CR>
       nnoremap <silent><leader>gq :call CocAction('quickfixes')<CR>
       nnoremap <silent><leader>,. :call CocActionAsync('format')<CR>
