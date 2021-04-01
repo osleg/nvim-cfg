@@ -6,6 +6,8 @@
 
 " Plugins List {{{
   " Frameworks and tools {{{
+    " color choser
+    Plug 'mnishz/colorscheme-preview.vim'
     "  Keys helper
     Plug 'liuchengxu/vim-which-key'
     " Nice comments
@@ -22,6 +24,7 @@
     Plug 'tpope/vim-surround'
     " Show neat indent guides
     "Plug 'nathanaelkane/vim-indent-guides'
+    "Plug 'Yggdroot/indentLine'
     " Fuzzy Finder, you don't need anything else
     Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
     Plug 'junegunn/fzf.vim'
@@ -45,7 +48,7 @@
     " Limit split width when there is too many
     Plug 'mattboehm/vim-accordion', { 'on': 'Accordion' }
     " Undo tree
-    Plug 'mbbill/undotree', { 'on': 'UndoTreeToggle' }
+    Plug 'mbbill/undotree'
     "Taskwarrior TUI
     Plug 'blindFS/vim-taskwarrior', { 'on': 'TW' }
     Plug 'vimwiki/vimwiki'
@@ -56,12 +59,12 @@
     " RESTFul client
     Plug 'diepm/vim-rest-console'
     " treesitter
-    "Plug 'nvim-treesitter/nvim-treesitter'
+    " Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'} 
   " }}}
 
   " Autocomplete {{{
     " CoC {{{
-      Plug 'neoclide/coc.nvim', {'branch': 'release', 'for': 'clojure'}
+      Plug 'neoclide/coc.nvim', {'branch': 'release'}
     " }}}
     " Nvim LSP {{{
       "Plug 'neovim/nvim-lsp'
@@ -99,7 +102,7 @@
 
     " Clojure {{{
       Plug 'eraserhd/parinfer-rust', { 'do': 'cargo build --release', 'for': 'clojure' }
-      Plug 'Olical/conjure', { 'for': 'clojure', 'tag': 'v4.11.0' }
+      Plug 'Olical/conjure', { 'for': 'clojure', 'tag': 'v4.17.0' }
       "Plug 'bakpakin/fennel.vim', { 'for': ['clojure', 'fennel'] }
       " Folding for clojure
       Plug 'gberenfield/cljfold.vim', { 'for': 'clojure' }
@@ -121,6 +124,11 @@
     Plug 'ryanoasis/vim-devicons'
     " OneDark theme
     Plug 'joshdick/onedark.vim'
+    " Ayu theme
+    Plug 'ayu-theme/ayu-vim'
+    " Tmux stuff
+    Plug 'edkolev/tmuxline.vim'
+    Plug 'christoomey/vim-tmux-navigator'
   " }}}
 
   " Git {{{
@@ -177,7 +185,7 @@
     " }}}
     " theme
     let g:airline_powerline_fonts = 1
-    let g:airline_theme = 'onedark'
+    let g:airline_theme = 'ayu_mirage'
   " }}}
   " Tagbar {{{
     let g:tagbar_left = 1
@@ -289,7 +297,10 @@
     set background=dark                        " Set dark for transparent window
     set guifont=Hack\ Nerd\ Font:h20 " Set font
     set termguicolors                          " Set truecolor
-    colorscheme  onedark                       " Nice color scheme
+    let ayucolor="mirage"
+    colorscheme  ayu                       " Nice color scheme
+    " ayu has some shitty bracket highlight colors, this is to fix it
+    hi MatchParen guifg=white guibg=NONE
     " Transaprency {{{
       "highlight Normal ctermbg=NONE
       "highlight NonText ctermbg=NONE
@@ -298,15 +309,15 @@
     " }}}
   " }}}
   " TreeSitter {{{
-"lua <<EOF
-"require'nvim-treesitter.configs'.setup {
-  "ensure_installed = "maintained",
-  "-- Modules and its options go here
-  "highlight = {
-    "enable = false,
-    "use_languagetree = false,
-  "},
-"}
-"EOF
+" lua <<EOF
+" require'nvim-treesitter.configs'.setup {
+"   ensure_installed = "maintained",
+"   -- Modules and its options go here
+"   highlight = {
+"     enable = true,
+"     use_languagetree = true,
+"   },
+" }
+" EOF
   " }}}
 " }}}

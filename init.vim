@@ -39,8 +39,8 @@
     set expandtab                                   " Tabs are spaces, not tabs
     set tabstop=2                                   " An indentation every 2 columns
     set softtabstop=2                               " Let backspace delete indent
-    set splitright                                  " Puts new vsplit windows to the right of the current
     set splitbelow                                  " Puts new vsplit windows to the bottom of the current
+    set splitright                                  " Puts new vsplit windows to the right of the current
     set matchpairs+=<:>                             " Match, to be used with %
     set pastetoggle=<F11>                           " pastetoggle (sane indentation on pastes)
     set cursorline                                  " Highlight the line where cursor located
@@ -49,6 +49,7 @@
     set nornu                                       " No RELATIVE line numbers
     set showmatch                                   " Show matching bracket/parenthesis
     set winminheight=1                              " allow buffers to be 1 line high
+    set winminwidth=1                               " allow buffers to be 1 line high
     set wildmenu                                    " Show list instead of just completing
     set wildmode=longest:full,full                  " Command <Tab> completion, list matches, then longest common part, then all.
     set whichwrap=b,s,<,>,[,]                       " Backspace and cursor keys wrap too
@@ -65,7 +66,7 @@
     set timeoutlen=500                              " Set shorter timeout for mappings
     set cmdheight=2                                 " Little bit more space for messages
     set updatetime=300                              " faster CursorHold action
-    set jumpoptions=stack
+    "set jumpoptions=stack
   " }}}
 
   " Search setup {{{

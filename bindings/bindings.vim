@@ -116,7 +116,7 @@ so ~/.config/nvim/bindings/whichkey.vim
       " fast buffers access
       nnoremap <Leader><Space> :Buffers<CR>
       nnoremap <Leader>bb :Buffers<CR>
-      nnoremap <Leader>bg :Ag 
+      nnoremap <Leader>bg :Rg 
       nnoremap <Leader>bl :BLines<CR>
       nnoremap <Leader>bL :Lines<CR>
       nnoremap <Leader>bt :BTags<CR>
