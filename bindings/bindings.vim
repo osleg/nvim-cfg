@@ -146,17 +146,12 @@ so ~/.config/nvim/bindings/whichkey.vim
   " Git {{{
     " Fugutive {{{
       " Stage file
-      nmap <silent><Leader>gw :Gwrite<CR>
+      nmap <silent><Leader>gw :GWrite<CR>
       " Git status
-      nmap <silent><Leader>gs :Gstatus<CR>
-      " Commit staged changes
-      nmap <silent><Leader>gc :Gcommit<CR>
+      nmap <silent><Leader>gs :G<CR>
     " }}}
     " GV {{{
       nnoremap <silent><leader>gl :GV<CR>
-    " }}}
-    " Magit {{{
-      let g:magit_show_magit_mapping='gm'
     " }}}
   " }}}
   " Code {{{

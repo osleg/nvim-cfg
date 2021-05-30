@@ -37,9 +37,7 @@
     let g:which_key_map.g = {'name': '+Git',
           \ 'l': {'name': 'Logs'},
           \ 'w': {'name': 'Write'},
-          \ 's': {'name': 'Status'},
-          \ 'c': {'name': 'Commit'},
-          \ 'm': {'name': 'Magit'} }
+          \ 's': {'name': 'Status'}}
   " }}}
   " Whichkey mappings code {{{
     let g:which_key_map.c = {

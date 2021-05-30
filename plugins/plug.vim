@@ -6,10 +6,16 @@
 
 " Plugins List {{{
   " Frameworks and tools {{{
+    " vimtips
+    Plug 'danilamihailov/vim-tips-wiki'
+    " float Term
+    Plug 'akinsho/nvim-toggleterm.lua'
     " color choser
     Plug 'mnishz/colorscheme-preview.vim'
     "  Keys helper
     Plug 'liuchengxu/vim-which-key'
+    " which keu lua version"
+    "Plug 'folke/which-key.nvim'
     " Nice comments
     Plug 'scrooloose/nerdcommenter'
     " File browser
@@ -23,8 +29,9 @@
     " Help with surrounding '"([{ etc
     Plug 'tpope/vim-surround'
     " Show neat indent guides
+    "Plug 'lukas-reineke/indent-blankline.nvim'
     "Plug 'nathanaelkane/vim-indent-guides'
-    "Plug 'Yggdroot/indentLine'
+    Plug 'Yggdroot/indentLine'
     " Fuzzy Finder, you don't need anything else
     Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
     Plug 'junegunn/fzf.vim'
@@ -59,7 +66,7 @@
     " RESTFul client
     Plug 'diepm/vim-rest-console'
     " treesitter
-    " Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'} 
+    Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'} 
   " }}}
 
   " Autocomplete {{{
@@ -73,6 +80,10 @@
       "Plug 'hrsh7th/vim-vsnip-integ'
       "Plug 'nvim-lua/diagnostic-nvim'
     " }}}
+    " DAP {{{
+      Plug 'mfussenegger/nvim-dap'
+      Plug 'theHamsta/nvim-dap-virtual-text'
+    " }}}
   " }}}
 
   " Snippets {{{
@@ -81,7 +92,7 @@
 
   " Languages {{{
     " Polyglot - Mega language pack, syntax hilight, ident and ftplugs only {{{
-      Plug 'sheerun/vim-polyglot'
+      "Plug 'sheerun/vim-polyglot'
     " }}}
 
     " Go {{{
@@ -102,7 +113,7 @@
 
     " Clojure {{{
       Plug 'eraserhd/parinfer-rust', { 'do': 'cargo build --release', 'for': 'clojure' }
-      Plug 'Olical/conjure', { 'for': 'clojure', 'tag': 'v4.17.0' }
+      Plug 'Olical/conjure', { 'for': 'clojure', 'tag': 'v4.19.0'}
       "Plug 'bakpakin/fennel.vim', { 'for': ['clojure', 'fennel'] }
       " Folding for clojure
       Plug 'gberenfield/cljfold.vim', { 'for': 'clojure' }
@@ -129,12 +140,18 @@
     " Tmux stuff
     Plug 'edkolev/tmuxline.vim'
     Plug 'christoomey/vim-tmux-navigator'
+    " TokyoNight
+    Plug 'folke/tokyonight.nvim'
+    " For airline theme
+    Plug 'ghifarit53/tokyonight-vim'
   " }}}
 
   " Git {{{
     Plug 'tpope/vim-fugitive'
     Plug 'junegunn/gv.vim'
-    Plug 'jreybert/vimagit'
+    Plug 'nvim-lua/plenary.nvim'
+    Plug 'lewis6991/gitsigns.nvim'
+    "Plug 'jreybert/vimagit'
   " }}}
 
   " End Plugin {{{
@@ -185,13 +202,37 @@
     " }}}
     " theme
     let g:airline_powerline_fonts = 1
-    let g:airline_theme = 'ayu_mirage'
+    "let g:airline_theme = 'ayu_mirage'
+    let g:airline_theme = 'tokyonight'
+    " default shor signs from help
+    let g:airline_mode_map = {
+      \ '__'     : '-',
+      \ 'c'      : 'C',
+      \ 'i'      : 'I',
+      \ 'ic'     : 'I',
+      \ 'ix'     : 'I',
+      \ 'n'      : 'N',
+      \ 'multi'  : 'M',
+      \ 'ni'     : 'N',
+      \ 'no'     : 'N',
+      \ 'R'      : 'R',
+      \ 'Rv'     : 'R',
+      \ 's'      : 'S',
+      \ 'S'      : 'S',
+      \ ''     : 'S',
+      \ 't'      : 'T',
+      \ 'v'      : 'V',
+      \ 'V'      : 'V',
+      \ ''     : 'V',
+      \ }
+    let g:airline_exclude_preview = 0
   " }}}
   " Tagbar {{{
     let g:tagbar_left = 1
   " }}}
   " Indent Guides {{{
-    " Enable guides on vim startup
+    let g:indentLine_char_list = ['|', '¦', '┆', '┊'] 
+   " Enable guides on vim startup
     "let g:indent_guides_enable_on_vim_startup = 1
     " Set guides size to be slim
     "let g:indent_guides_guide_size = 2
@@ -292,15 +333,18 @@
         "autocmd ColorScheme * call onedark#set_highlight("Normal", { "fg": s:white }) " `bg` will not be styled since there is no `bg` setting
       "augroup END
     "endif
+    autocmd CursorHold * silent call CocActionAsync('highlight')
     "Use 24-bit (true-color) mode in Vim/Neovim when outside tmux.
     let $NVIM_TUI_ENABLE_TRUE_COLOR=1
     set background=dark                        " Set dark for transparent window
     set guifont=Hack\ Nerd\ Font:h20 " Set font
     set termguicolors                          " Set truecolor
     let ayucolor="mirage"
-    colorscheme  ayu                       " Nice color scheme
+    colorscheme   tokyonight "                        Nice color scheme
+
     " ayu has some shitty bracket highlight colors, this is to fix it
     hi MatchParen guifg=white guibg=NONE
+    hi CocHighlightText cterm=undercurl term=undercurl gui=undercurl
     " Transaprency {{{
       "highlight Normal ctermbg=NONE
       "highlight NonText ctermbg=NONE
@@ -309,15 +353,47 @@
     " }}}
   " }}}
   " TreeSitter {{{
-" lua <<EOF
-" require'nvim-treesitter.configs'.setup {
-"   ensure_installed = "maintained",
-"   -- Modules and its options go here
-"   highlight = {
-"     enable = true,
-"     use_languagetree = true,
-"   },
-" }
-" EOF
+lua <<EOF
+require'nvim-treesitter.configs'.setup {
+  ensure_installed = "maintained",
+  -- Modules and its options go here
+  highlight = {
+    enable = true
+  },
+  incremental_selection = {
+    enable = true,
+    keymaps = {
+      init_selection = "gnn",
+      node_incremental = "grn",
+      scope_incremental = "grc",
+      node_decremental = "grm",
+    }
+  },
+  indent = {
+    enable = true
+  }
+}
+EOF
+  " }}}
+  " gitsigns {{{
+    lua require('gitsigns').setup()
+  " }}}
+  " toggleterm {{{
+lua <<EOF
+    require('toggleterm').setup{
+      open_mapping = [[≈]],
+      direction = 'vertical',
+      close_on_exit = true,
+      size = 120,
+    }
+EOF
+  " }}}
+  " WhichKey Lua {{{
+"lua <<EOF
+    "require('which-key').setup{}
+"EOF
+  " }}}
+  " DAP {{{
+    let g:dap_virtual_text = v:true
   " }}}
 " }}}

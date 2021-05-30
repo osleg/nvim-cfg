@@ -1,14 +1,25 @@
 {
-  "python.jediEnabled": false,
-  "python.autoUpdateLanguageServer": true,
-  "diagnostic.checkCurrentLine": false,
-
 	"codeLens.enable": true,
+
+  "diagnostic.checkCurrentLine": false,
   "diagnostic.enableHighlightLineNumber": true,
+  "diagnostic.virtualText": true,
+
+  "signature.enable": true,
+  "signature.hideOnTextChange": false,
+  "coc.preferences.promptInput": true,
+  "coc.preferences.floatActions": true,
+  "coc.preferences.extensionUpdateCheck": "daily",
+  "coc.preferences.previewAutoClose": true,
   "coc.preferences.colorSupport": true,
+  "coc.preferences.bracketEnterImprove": true,
+  "coc.preferences.enableFloatHighlight": true,
 	"coc.preferences.formatOnSaveFiletypes": [
-		"dart"
+		"dart",
+    "clojure"
 	],
+  "coc.preferences.currentFunctionSymbolAutoUpdate": true,
+  "git.enableGutters": false,
   "suggest.completionItemKindLabels": {
 		"keyword": "\uf1de",
 		"variable": "\ue79b",
@@ -37,11 +48,6 @@
 		"default": "\uf29c"
 	},
 
-  "diagnostic.virtualText": false,
-  "go.goplsOptions": {
-    "deepCompletion": true
-  },
-
   "languageserver": {
     "ccls": {
       "command": "ccls",
@@ -64,13 +70,22 @@
       "filetypes": ["clojure"],
       "rootPatterns": ["project.clj"],
       "additionalSchemes": ["jar", "zipfile"],
-      "trace.server": "verbose",
       "initializationOptions": {
         "ignore-classpath-directories": true
-      }
+      },
+      "trace.server": "verbose"
     }
   },
-
   
-	"flutter.runDevToolsAtStartup": true
+	"flutter.runDevToolsAtStartup": true,
+
+  "python.jediEnabled": false,
+  "python.autoUpdateLanguageServer": true,
+  "python.pythonPath": "python3",
+  "python.linting.enabled": true,
+
+  "go.goplsOptions": {
+    "deepCompletion": true
+  }
+
 }
