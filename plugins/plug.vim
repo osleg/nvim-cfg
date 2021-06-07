@@ -120,7 +120,8 @@
       " Linting
       Plug 'fbeline/kibit-vim', { 'for': 'clojure' }
       " Rainbow parenthesis
-      Plug 'luochen1990/rainbow', {'for': 'clojure'}
+      "Plug 'luochen1990/rainbow', {'for': 'clojure'}
+      Plug 'p00f/nvim-ts-rainbow'
     " }}}
   " }}}
 
@@ -182,11 +183,11 @@
     let NERDCreateDefaultMappings = 0
   " }}}
   " Rainbow {{{
-    let g:rainbow_active=0
-    augroup clojure
-      au!
-      au FileType clojure RainbowToggleOn
-    augroup END
+    "let g:rainbow_active=0
+    "augroup clojure
+      "au!
+      "au FileType clojure RainbowToggleOn
+    "augroup END
   " }}}
   " Airline {{{
     " settings
@@ -370,7 +371,13 @@ require'nvim-treesitter.configs'.setup {
     }
   },
   indent = {
-    enable = true
+    enable = true,
+    disable = {"python"}
+  },
+  rainbow = {
+    enable = true,
+    extended_mode = false,
+    max_file_lines = 4000
   }
 }
 EOF
