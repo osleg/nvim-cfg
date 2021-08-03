@@ -1,0 +1,115 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+"local_variable_declaration", -- `local f 	lua/preview.lua	/^  "local_variable_declaration", -- `local f = function(...) ... end`$/;"	f
+"variable_declaration", -- `f 	lua/preview.lua	/^  "variable_declaration", -- `f = function(...) ... end`$/;"	f
+$NVIM_TUI_ENABLE_TRUE_COLOR	init.vim	/^  let $NVIM_TUI_ENABLE_TRUE_COLOR=1$/;"	v
+, -- for method nodes like `class:method	lua/preview.lua	/^  "function", -- for method nodes like `class:method()`$/;"	f
+.	bindings/bindings.vim	/^  vnoremap . :normal .<CR>$/;"	m
+<	bindings/bindings.vim	/^    vnoremap < <gv$/;"	m
+<C-H>	bindings/bindings.vim	/^    nnoremap <C-H> <C-W>h$/;"	m
+<C-J>	bindings/bindings.vim	/^    nnoremap <C-J> <C-W>j$/;"	m
+<C-K>	bindings/bindings.vim	/^    nnoremap <C-K> <C-W>k$/;"	m
+<C-L>	bindings/bindings.vim	/^    nnoremap <C-L> <C-W>l$/;"	m
+<Leader>	bindings/bindings.vim	/^  nnoremap <silent><Leader>$/;"	m
+<Leader>/	bindings/bindings.vim	/^  nmap <silent><Leader>\/ :let @\/=""<CR>$/;"	m
+<Leader>=	bindings/bindings.vim	/^  map <Leader>= <C-w>=$/;"	m
+<Leader>am	bindings/bindings.vim	/^  nnoremap <silent> <Leader>am :call AppendModeline()<CR>$/;"	m
+<S-H>	bindings/bindings.vim	/^    map <S-H> :bp<CR>$/;"	m
+<S-L>	bindings/bindings.vim	/^    map <S-L> :bn<CR>$/;"	m
+<leader>be	bindings/bindings.vim	/^  nnoremap<silent> <leader>be :NvimTreeToggle<CR>$/;"	m
+<leader>ff-	bindings/bindings.vim	/^    nmap <leader>ff- :set foldmethod=manual<CR>$/;"	m
+<leader>ff0	bindings/bindings.vim	/^    nmap <leader>ff0 :set foldlevel=0<CR>$/;"	m
+<leader>ff1	bindings/bindings.vim	/^    nmap <leader>ff1 :set foldlevel=1<CR>$/;"	m
+<leader>ff2	bindings/bindings.vim	/^    nmap <leader>ff2 :set foldlevel=2<CR>$/;"	m
+<leader>ff3	bindings/bindings.vim	/^    nmap <leader>ff3 :set foldlevel=3<CR>$/;"	m
+<leader>ff4	bindings/bindings.vim	/^    nmap <leader>ff4 :set foldlevel=4<CR>$/;"	m
+<leader>ff5	bindings/bindings.vim	/^    nmap <leader>ff5 :set foldlevel=5<CR>$/;"	m
+<leader>ff6	bindings/bindings.vim	/^    nmap <leader>ff6 :set foldlevel=6<CR>$/;"	m
+<leader>ff7	bindings/bindings.vim	/^    nmap <leader>ff7 :set foldlevel=7<CR>$/;"	m
+<leader>ff8	bindings/bindings.vim	/^    nmap <leader>ff8 :set foldlevel=8<CR>$/;"	m
+<leader>ff9	bindings/bindings.vim	/^    nmap <leader>ff9 :set foldlevel=9<CR>$/;"	m
+<leader>ff=	bindings/bindings.vim	/^    nmap <leader>ff= :set foldmethod=syntax<CR>$/;"	m
+<leader>sh	bindings/bindings.vim	/^  nnoremap <silent> <leader>sh :split<CR>$/;"	m
+<leader>sv	bindings/bindings.vim	/^  nnoremap <silent> <leader>sv :vsplit<CR>$/;"	m
+<leader>xt	init.vim	/^  nnoremap <silent> <leader>xt :TodoTrouble<CR>$/;"	m
+<leader>xw	init.vim	/^  nnoremap <silent> <leader>xw :TroubleToggle lsp_workspace_diagnostics<CR>$/;"	m
+<leader>xx	init.vim	/^  nnoremap <silent> <leader>xx :TroubleToggle lsp_document_diagnostics<CR>$/;"	m
+>	bindings/bindings.vim	/^    vnoremap > >gv$/;"	m
+AppendModeline	init.vim	/^    function! AppendModeline()$/;"	f
+E	bindings/bindings.vim	/^    command! -bang -nargs=* -complete=file E e<bang> <args>$/;"	c
+Expand	init.vim	/^    function! Expand(exp) abort$/;"	f
+FoldText	init.vim	/^    function! FoldText()$/;"	f
+FractionFormat	init.vim	/^    function! s:FractionFormat(fraction)$/;"	f
+FractionNearest	init.vim	/^    function! s:FractionNearest(proportion, maxDenominator)$/;"	f
+FractionSearch	init.vim	/^    function! s:FractionSearch(proportion, denominator)$/;"	f
+FractionsBetween	init.vim	/^    function! s:FractionsBetween(lo, hi, denominator)$/;"	f
+Fterm_maps	bindings/bindings.vim	/^    fun! Fterm_maps()$/;"	f
+InitializeDirectories	init.vim	/^    function! InitializeDirectories()$/;"	f
+PulseCursorLine	init.vim	/^    function! PulseCursorLine()$/;"	f
+Q	bindings/bindings.vim	/^    command! -bang Q q<bang>$/;"	c
+Q	bindings/bindings.vim	/^  nnoremap Q <nop>$/;"	m
+QA	bindings/bindings.vim	/^    command! -bang QA qa<bang>$/;"	c
+Qa	bindings/bindings.vim	/^    command! -bang Qa qa<bang>$/;"	c
+StripTrailingWhitespace	init.vim	/^    function! StripTrailingWhitespace()$/;"	f
+W	bindings/bindings.vim	/^    command! -bang -nargs=* -complete=file W w<bang> <args>$/;"	c
+WA	bindings/bindings.vim	/^    command! -bang WA wa<bang>$/;"	c
+WQ	bindings/bindings.vim	/^    command! -bang -nargs=* -complete=file WQ wq<bang> <args>$/;"	c
+Wa	bindings/bindings.vim	/^    command! -bang Wa wa<bang>$/;"	c
+Wq	bindings/bindings.vim	/^    command! -bang -nargs=* -complete=file Wq wq<bang> <args>$/;"	c
+Y	bindings/bindings.vim	/^  nnoremap Y y\$$/;"	m
+_G.completions	plugins.lua	/^        function _G.completions()$/;"	f
+_G.s_tab_complete 	plugins.lua	/^        _G.s_tab_complete = function()$/;"	f
+_G.tab_complete 	plugins.lua	/^        _G.tab_complete = function()$/;"	f
+buf_set_keymap	plugins.lua	/^          local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end$/;"	f
+buf_set_option	plugins.lua	/^          local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end$/;"	f
+config	plugins.lua	/^    config= function()$/;"	f
+config 	plugins.lua	/^            config = function() require'rust-tools'.setup{} end$/;"	f
+config 	plugins.lua	/^          config = function()$/;"	f
+config 	plugins.lua	/^        config = function()$/;"	f
+config 	plugins.lua	/^      config = function ()$/;"	f
+config 	plugins.lua	/^      config = function() require('nvim-autopairs').setup() end$/;"	f
+config 	plugins.lua	/^      config = function()$/;"	f
+config 	plugins.lua	/^    config = function()$/;"	f
+defaults	init.vim	/^    let defaults = {'placeholder': 'Ⱝ', 'line': 'ᚚ', 'whole': 'ᛈ',$/;"	v
+defaults	init.vim	/^    let defaults['denominator'] = 25$/;"	v
+defaults	init.vim	/^    let defaults['gap'] = 4$/;"	v
+g:FoldText_denominator	init.vim	/^      let g:FoldText_denominator = &maxfuncdepth - 1$/;"	v
+g:FoldText_denominator	init.vim	/^      let g:FoldText_denominator = defaults['denominator']$/;"	v
+g:FoldText_division	init.vim	/^      let g:FoldText_division = defaults['division']$/;"	v
+g:FoldText_epsilon	init.vim	/^      let g:FoldText_epsilon = defaults['epsilon']$/;"	v
+g:FoldText_gap	init.vim	/^      let g:FoldText_gap = defaults['gap']$/;"	v
+g:FoldText_level	init.vim	/^      let g:FoldText_level = defaults['level']$/;"	v
+g:FoldText_line	init.vim	/^      let g:FoldText_line = defaults['line']$/;"	v
+g:FoldText_multiplication	init.vim	/^      let g:FoldText_multiplication = defaults['multiplication']$/;"	v
+g:FoldText_placeholder	init.vim	/^      let g:FoldText_placeholder = defaults['placeholder']$/;"	v
+g:FoldText_whole	init.vim	/^      let g:FoldText_whole = defaults['whole']$/;"	v
+g:UltiSnipsExpandTrigger	init.vim	/^  let g:UltiSnipsExpandTrigger            =  "<nop>"$/;"	v
+g:UltiSnipsJumpBackwardTrigger	init.vim	/^  let g:UltiSnipsJumpBackwardTrigger      =  "<nop>"$/;"	v
+g:UltiSnipsJumpForwardTrigger	init.vim	/^  let g:UltiSnipsJumpForwardTrigger       =  "<nop>"$/;"	v
+g:UltiSnipsListSnippets	init.vim	/^  let g:UltiSnipsListSnippets             =  "<nop>"$/;"	v
+g:python3_host_prog	init.vim	/^    let g:python3_host_prog = '\/usr\/local\/bin\/python3'$/;"	v
+ga	bindings/bindings.vim	/^  nmap ga <Plug>(EasyAlign)$/;"	m
+if vim.api.nvim_call_function('has', {'nvim-0.5'}) ~	plugin/packer_compiled.lua	/^if vim.api.nvim_call_function('has', {'nvim-0.5'}) ~= 1 then$/;"	f
+j	bindings/bindings.vim	/^    noremap j gj$/;"	m
+k	bindings/bindings.vim	/^    noremap k gk$/;"	m
+local check_back_space 	plugins.lua	/^        local check_back_space = function()$/;"	f
+local no_errors, error_msg 	plugin/packer_compiled.lua	/^local no_errors, error_msg = pcall(function()$/;"	f
+local on_attach 	plugins.lua	/^        local on_attach = function(client, bufnr)$/;"	f
+local t 	plugins.lua	/^        local t = function(str)$/;"	f
+localleader	init.vim	/^    let localleader="\\\\"$/;"	v
+make_lsp_preview_action	lua/preview.lua	/^local function make_lsp_preview_action(method)$/;"	f
+mapleader	init.vim	/^    let mapleader=" "$/;"	v
+preview_location_callback	lua/preview.lua	/^local function preview_location_callback(_, method, response)$/;"	f
+save_profiles	plugin/packer_compiled.lua	/^local function save_profiles(threshold)$/;"	f
+should_use_ts	lua/preview.lua	/^local function should_use_ts(node)$/;"	f
+term_maps	bindings/bindings.vim	/^    augroup term_maps$/;"	a
+time 	plugin/packer_compiled.lua	/^    time = function(chunk, start) end$/;"	f
+time 	plugin/packer_compiled.lua	/^    time = function(chunk, start)$/;"	f
+try_loadstring	plugin/packer_compiled.lua	/^local function try_loadstring(s, component, name)$/;"	f
+ts_range	lua/preview.lua	/^local function ts_range(location)$/;"	f
+use {'pwntester/octo.nvim', config	plugins.lua	/^    use {'pwntester\/octo.nvim', config=function()$/;"	f
+w!!	bindings/bindings.vim	/^  cmap w!! w !sudo tee % > \/dev\/null$/;"	m

@@ -18,18 +18,17 @@
 
 " Config {{{
   " Basic stuff/Editor Behavior {{{
-    set nocompatible                                " Disable VI compatibility
     filetype plugin indent on                       " Automatically detect file types
     syntax on                                       " Syntax Highlight
     set autoread                                    " Re-read file if it was changed on disk
     set autowrite                                   " Write buffer on leave
     set shortmess=aoOtTc                            " Basically... truncate almost everything
-    set viewoptions=cursor,folds,options,unix,slash " What to write for mkview
+    set viewoptions=cursor,folds,options            " What to write for mkview
     set virtualedit=onemore                         " Allow virtual editing everything
     set history=250                                 " Moar history!
     set hidden                                      " allow switching buffers without writing
     set lazyredraw                                  " Don't redraw on every sneeze
-    set completeopt=menuone,preview,noinsert,noselect       " Always show completion menu, don't auto-insert/select
+    set completeopt=menuone,noselect                " Always show completion menu, don't auto-insert/select
     set noshowmode                                  " Don't show current mode in status line
     set foldtext=FoldText()                         " Folds text
     set nowrap                                      " Don't wrap lines
@@ -120,12 +119,35 @@
 " }}}
 
 " Init plugins
-so ~/.config/nvim/plugins/plug.vim
+so /Users/alexx/.config/nvim/plugins.lua
 " Init bindings
-so ~/.config/nvim/bindings/bindings.vim
+so /Users/alexx/.config/nvim/bindings/bindings.vim
 
+" Theme {{{
+  let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+  set termguicolors
+  colorscheme tokyonight
+" }}}
+
+" UltiSNips {{{
+  let g:UltiSnipsExpandTrigger            =  "<nop>"
+  let g:UltiSnipsListSnippets             =  "<nop>"
+  let g:UltiSnipsJumpForwardTrigger       =  "<nop>"
+  let g:UltiSnipsJumpBackwardTrigger      =  "<nop>"
+" }}}"
+
+" Trouble {{{
+  nnoremap <silent> <leader>xx :TroubleToggle lsp_document_diagnostics<CR>
+  nnoremap <silent> <leader>xw :TroubleToggle lsp_workspace_diagnostics<CR>
+  nnoremap <silent> <leader>xt :TodoTrouble<CR>
+" }}}
+
+" {{{
+  " nnoremap gd :lua require'preview'.definition()<CR>
+" }}}
 
 " Functions {{{
+" TODO: check what still needed, port to lua and remove obsolete
   " Clojure thingeys {{{
   " TODO: Move it away
     function! Expand(exp) abort
@@ -340,35 +362,6 @@ so ~/.config/nvim/bindings/bindings.vim
         call cursor(l, c)
     endfunction
   " }}}
-  " Toggle Location/Quickfix buffers {{{
-    function! GetBufferList()
-      redir =>buflist
-      silent! ls!
-      redir END
-      return buflist
-    endfunction
-
-    function! ToggleList(bufname, pfx)
-      let buflist = GetBufferList()
-      for bufnum in map(filter(split(buflist, '\n'), 'v:val =~ "'.a:bufname.'"'), 'str2nr(matchstr(v:val, "\\d\\+"))')
-        if bufwinnr(bufnum) != -1
-          exec(a:pfx.'close')
-          return
-        endif
-      endfor
-      if a:pfx == 'l' && len(getloclist(0)) == 0
-          echohl ErrorMsg
-          echo "Location List is Empty."
-          return
-      endif
-      let winnr = winnr()
-      exec(a:pfx.'open')
-      if winnr() != winnr
-        wincmd p
-      endif
-    endfunction
-
-  " }}}
   " Init Directories (stolen from spf13) {{{
     function! InitializeDirectories()
         let parent = $HOME
@@ -398,5 +391,35 @@ so ~/.config/nvim/bindings/bindings.vim
         endfor
     endfunction
     call InitializeDirectories()
+  " }}}
+  " Pulse cursol line {{{
+    function! PulseCursorLine()
+      setlocal cursorline
+
+      redir => old_hi
+          silent execute 'hi CursorLine'
+      redir END
+      let old_hi = split(old_hi, '\n')[0]
+      let old_hi = substitute(old_hi, 'xxx', '', '')
+
+      hi CursorLine guibg=#3a3a3a
+      redraw
+      sleep 14m
+
+      hi CursorLine guibg=#4a4a4a
+      redraw
+      sleep 10m
+
+      hi CursorLine guibg=#3a3a3a
+      redraw
+      sleep 14m
+
+      hi CursorLine guibg=#2a2a2a
+      redraw
+      sleep 10m
+
+      execute 'hi ' . old_hi
+      setlocal nocursorline
+    endfunction
   " }}}
 " }}}
