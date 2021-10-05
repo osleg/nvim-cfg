@@ -9,6 +9,7 @@ return require("packer").startup(
     -- Vim stuff {
     use "nvim-lua/plenary.nvim"
     use "junegunn/vim-easy-align"
+    use "godlygeek/tabular"
     use {"folke/which-key.nvim",
       config = function ()
         require('which-key').setup{}
@@ -54,7 +55,6 @@ return require("packer").startup(
     --      config = function() require"nvim-mapper".setup {} end }
     use {"numtostr/FTerm.nvim",
         config = function()
-            require("FTerm").setup()
             local map = vim.api.nvim_set_keymap
             local opts = { noremap = true, silent = true }
 
@@ -95,15 +95,21 @@ return require("packer").startup(
 
     -- Telescope {
     use {"nvim-telescope/telescope-fzf-writer.nvim"}
+    use {"nvim-telescope/telescope-frecency.nvim",
+         requires = {"tami5/sql.nvim"}}
     use {"nvim-telescope/telescope.nvim",
       requires = {
         {'nvim-lua/popup.nvim'},
         {'nvim-lua/plenary.nvim'},
-        {'nvim-telescope/telescope-fzf-writer.nvim'}
+        {'nvim-telescope/telescope-fzf-writer.nvim'},
+        {"nvim-telescope/telescope-frecency.nvim"},
+        {'ThePrimeagen/git-worktree.nvim'},
       },
       config = function()
         local trouble = require('trouble.providers.telescope')
-        require'telescope'.setup{
+        local telescope = require('telescope')
+        telescope.load_extension("git_worktree")
+        telescope.setup{
           defaults = {
             mappings = {
               i = { ["<c-t>"] = trouble.open_with_trouble },
@@ -129,7 +135,7 @@ return require("packer").startup(
             vim.api.nvim_set_keymap("n", "<Leader>bb", "<Cmd>lua require('telescope.builtin').buffers()<CR>", opts)
             vim.api.nvim_set_keymap("n", "<Leader>bt", "<Cmd>lua require('telescope.builtin').tags()<CR>", opts)
             vim.api.nvim_set_keymap("n", "<Leader>bo", "<Cmd>lua require('telescope.builtin').oldfiles()<CR>", opts)
-            vim.api.nvim_set_keymap("n", "<Leader>bg", "<Cmd>lua require('telescope').extensions.fzf_writer.grep()<CR>", opts)
+            vim.api.nvim_set_keymap("n", "<Leader>bg", "<Cmd>lua require('telescope.builtin').live_grep()<CR>", opts)
           -- }
           -- Git stuff {
             vim.api.nvim_set_keymap("n", "<Leader>gb", "<Cmd>lua require('telescope.builtin').git_branches()<CR>", opts)
@@ -140,6 +146,7 @@ return require("packer").startup(
             vim.api.nvim_set_keymap("n", "<Leader><tab>", "<Cmd>lua require('telescope.builtin').commands()<CR>", opts)
           -- }
         -- }
+      require"telescope".load_extension("frecency")
       end
     }
     --}
@@ -157,7 +164,7 @@ return require("packer").startup(
       config = function()
         require('goto-preview').setup {
           default_mappings = true,
-          debug = true
+          debug = false
         }
       end
     }
@@ -203,7 +210,6 @@ return require("packer").startup(
           buf_set_keymap('n', 'gD',        '<Cmd>lua vim.lsp.buf.declaration()<CR>',      opts)
           buf_set_keymap('n', '<C-]>',     '<Cmd>lua vim.lsp.buf.definition()<CR>',       opts)
           buf_set_keymap('n', 'K',         '<Cmd>lua vim.lsp.buf.hover()<CR>',            opts)
-          buf_set_keymap('n', 'gi',        '<cmd>lua vim.lsp.buf.implementation()<CR>',   opts)
           buf_set_keymap('n', '<C-k>',     '<cmd>lua vim.lsp.buf.signature_help()<CR>',   opts)
           buf_set_keymap('n', '<space>D',  '<cmd>lua vim.lsp.buf.type_definition()<CR>',  opts)
           buf_set_keymap('n', '<space>rn', '<cmd>lua vim.lsp.buf.rename()<CR>',           opts)
@@ -217,6 +223,8 @@ return require("packer").startup(
             buf_set_keymap("n", "<leader>ca", "<Cmd>lua require('telescope.builtin').lsp_code_actions(require'telescope.themes'.get_cursor { winblend = 10 })<CR>", opts)
             buf_set_keymap("v", "<leader>ca", "<Cmd>lua require('telescope.builtin').lsp_range_code_actions(require'telescope.themes'.get_cursor { winblend = 10 })<CR>", opts)
             buf_set_keymap("n", "<leader>gd", "<Cmd>lua require('telescope.builtin').lsp_definitions(require'telescope.themes'.get_ivy { })<CR>", opts)
+            buf_set_keymap('n', '<leader>gi', "<Cmd>lua require('telescope.builtin').lsp_implementations(require'telescope.themes'.get_ivy { })<CR>",   opts)
+
             -- }
           -- }
 
@@ -237,11 +245,74 @@ return require("packer").startup(
             }
           }
         end
+        nvim_lsp['gopls'].setup {
+          on_attach = on_attach,
+          capabilities = capabilities,
+          filetypes = {"go", "gomod"},
+          message_level = vim.lsp.protocol.MessageType.Error,
+          cmd = {
+            "gopls", -- share the gopls instance if there is one already
+            "-remote=auto", --[[ debug options ]] --
+            -- "-logfile=auto",
+            -- "-debug=:0",
+            "-remote.debug=:0"
+            -- "-rpc.trace",
+          },
+
+          flags = {
+            allow_incremental_sync = true,
+            debounce_text_changes = 500
+          },
+          settings = {
+            gopls = {
+              -- more settings: https://github.com/golang/tools/blob/master/gopls/doc/settings.md
+              -- flags = {allow_incremental_sync = true, debounce_text_changes = 500},
+              -- not supported
+              analyses = {
+                unusedparams = true,
+                unreachable = true
+              },
+              codelenses = {
+                generate = true, -- show the `go generate` lens.
+                gc_details = true, --  // Show a code lens toggling the display of gc's choices.
+                tidy = true -- adding mod tidy
+              },
+              usePlaceholders = true,
+              completeUnimported = true,
+              staticcheck = true,
+              matcher = "fuzzy",
+              experimentalDiagnosticsDelay = "500ms",
+              -- diagnosticsDelay = "500ms",
+              -- experimentalWatchedFileDelay = "100ms",
+              symbolMatcher = "fuzzy",
+              gofumpt = false, -- true, -- turn on for new repos, gofmpt is good but also create code turmoils
+              buildFlags = {"-tags", "integration"}
+              -- buildFlags = {"-tags", "functional"}
+            }
+          }
+        }
       end
     }
+    use {"RishabhRD/popfix"}
+    use {"RishabhRD/nvim-lsputils",
+         requires = {{"RishabhRD/popfix"}},
+         config = function()
+           local lsputil_ca = require('lsputil.codeAction')
+           local lsputil_loc = require('lsputil.locations')
+           local lsputil_sym = require('lsputil.symbols')
+           vim.lsp.handlers['textDocument/codeAction'] = lsputil_ca.code_action_handler
+           vim.lsp.handlers['textDocument/references'] = lsputil_loc.references_handler
+           vim.lsp.handlers['textDocument/definition'] = lsputil_loc.definition_handler
+           vim.lsp.handlers['textDocument/declaration'] = lsputil_loc.declaration_handler
+           vim.lsp.handlers['textDocument/typeDefinition'] = lsputil_loc.typeDefinition_handler
+           vim.lsp.handlers['textDocument/implementation'] = lsputil_loc.implementation_handler
+           vim.lsp.handlers['textDocument/documentSymbol'] = lsputil_sym.document_handler
+           vim.lsp.handlers['workspace/symbol'] = lsputil_sym.workspace_handler
+         end}
     -- }
 
     -- debug {
+    use {"theHamsta/nvim-dap-virtual-text"}
     use {"mfussenegger/nvim-dap",
       config = function ()
         local dap = require('dap')
@@ -292,7 +363,6 @@ return require("packer").startup(
               "stacks",
               "watches"
             },
-            width = 40,
             position = "left" -- Can be "left" or "right"
           },
           tray = {
@@ -300,7 +370,6 @@ return require("packer").startup(
             elements = {
               "repl"
             },
-            height = 10,
             position = "bottom" -- Can be "bottom" or "top"
           },
           floating = {
@@ -457,6 +526,12 @@ return require("packer").startup(
     use {'pwntester/octo.nvim', config=function()
       require"octo".setup()
     end}
+    use {'tpope/vim-fugitive'}
+    use {'junegunn/gv.vim'}
+    use {'ThePrimeagen/git-worktree.nvim',
+         config = function()
+           require("git-worktree").setup{}
+         end}
     -- }
 
     -- Languages {
@@ -477,6 +552,14 @@ return require("packer").startup(
         use {"eraserhd/parinfer-rust",
           run = "cargo build --release",
           ft = "clojure"
+        }
+      -- }
+
+      -- Golang {
+        use {"ray-x/go.nvim",
+          config = function ()
+            require'go'.setup {}
+          end
         }
       -- }
     -- }
