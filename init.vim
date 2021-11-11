@@ -113,21 +113,36 @@
   " }}}
 
   " Python interpreter {{{
-    let g:python3_host_prog = '/usr/local/bin/python3'
+    " let g:python3_host_prog = '/usr/local/bin/python3'
   " }}}
 
 " }}}
 
 " Init plugins
-so /Users/alexx/.config/nvim/plugins.lua
+so ~/.config/nvim/plugins.lua
 " Init bindings
-so /Users/alexx/.config/nvim/bindings/bindings.vim
+so ~/.config/nvim/bindings/bindings.vim
 
 " Theme {{{
   let $NVIM_TUI_ENABLE_TRUE_COLOR=1
   set termguicolors
+  set guifont=Hack\ Regular:h12
   colorscheme tokyonight
 " }}}
+
+" DAP {{{
+  nnoremap <silent> <F9> :lua require'dap'.continue()<CR>
+  nnoremap <silent> <F8> :lua require'dap'.step_over()<CR>
+  nnoremap <silent> <F7> :lua require'dap'.step_into()<CR>
+  nnoremap <silent> <F6> :lua require'dap'.step_out()<CR>
+  nnoremap <silent> <leader>dbb :lua require'dap'.toggle_breakpoint()<CR>
+  nnoremap <silent> <leader>dbc :lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>
+  nnoremap <silent> <leader>dbl :lua require'dap'.set_breakpoint(nil, nil, vim.fn.input('Log point message: '))<CR>
+  nnoremap <silent> <leader>dr :lua require'dap'.repl.open()<CR>
+  nnoremap <silent> <leader>dl :lua require'dap'.run_last()<CR>
+  nnoremap <silent> <leader>dui :lua require'dapui'.toggle()<CR>
+  nnoremap <silent> <leader>duf :lua require'dapui'.float_element()<CR>
+" }}}"
 
 " UltiSNips {{{
   let g:UltiSnipsExpandTrigger            =  "<nop>"
@@ -141,6 +156,10 @@ so /Users/alexx/.config/nvim/bindings/bindings.vim
   nnoremap <silent> <leader>xw :TroubleToggle lsp_workspace_diagnostics<CR>
   nnoremap <silent> <leader>xt :TodoTrouble<CR>
 " }}}
+
+" GO {{{
+  let g:go_code_completion_enabled = 0
+" }}}"
 
 " {{{
   " nnoremap gd :lua require'preview'.definition()<CR>
@@ -423,3 +442,4 @@ so /Users/alexx/.config/nvim/bindings/bindings.vim
     endfunction
   " }}}
 " }}}
+
