@@ -28,7 +28,7 @@
     set history=250                                 " Moar history!
     set hidden                                      " allow switching buffers without writing
     set lazyredraw                                  " Don't redraw on every sneeze
-    set completeopt=menuone,noselect                " Always show completion menu, don't auto-insert/select
+    set completeopt=menu,menuone,noselect           " Always show completion menu, don't auto-insert/select
     set noshowmode                                  " Don't show current mode in status line
     set foldtext=FoldText()                         " Folds text
     set nowrap                                      " Don't wrap lines
@@ -113,15 +113,29 @@
   " }}}
 
   " Python interpreter {{{
-    let g:python3_host_prog = '/usr/local/bin/python3'
+    let g:python3_host_prog = '/Users/alex.zaslavsky/.virtualenvs/nvim/bin/python'
   " }}}
 
 " }}}
 
 " Init plugins
-so /Users/alexx/.config/nvim/plugins.lua
+so /Users/alex.zaslavsky/.config/nvim/plugins.lua
 " Init bindings
-so /Users/alexx/.config/nvim/bindings/bindings.vim
+so /Users/alex.zaslavsky/.config/nvim/bindings/bindings.vim
+
+" DAP {{{
+  nnoremap <silent> <leader>dc :lua require'dap'.continue()<CR>
+  nnoremap <silent> <leader>dl :lua require'dap'.step_over()<CR>
+  nnoremap <silent> <leader>dj :lua require'dap'.step_into()<CR>
+  nnoremap <silent> <leader>dk :lua require'dap'.step_out()<CR>
+  nnoremap <silent> <leader>dbb :lua require'dap'.toggle_breakpoint()<CR>
+  nnoremap <silent> <leader>dbc :lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>
+  nnoremap <silent> <leader>dbl :lua require'dap'.set_breakpoint(nil, nil, vim.fn.input('Log point message: '))<CR>
+  nnoremap <silent> <leader>dr :lua require'dap'.repl.open()<CR>
+  nnoremap <silent> <leader>dl :lua require'dap'.run_last()<CR>
+  nnoremap <silent> <leader>dui :lua require'dapui'.toggle()<CR>
+  nnoremap <silent> <leader>duf :lua require'dapui'.float_element()<CR>
+" }}}"
 
 " Theme {{{
   let $NVIM_TUI_ENABLE_TRUE_COLOR=1
@@ -137,10 +151,18 @@ so /Users/alexx/.config/nvim/bindings/bindings.vim
 " }}}"
 
 " Trouble {{{
-  nnoremap <silent> <leader>xx :TroubleToggle lsp_document_diagnostics<CR>
-  nnoremap <silent> <leader>xw :TroubleToggle lsp_workspace_diagnostics<CR>
+  nnoremap <silent> <leader>xx :TroubleToggle document_diagnostics<CR>
+  nnoremap <silent> <leader>xw :TroubleToggle workspace_diagnostics<CR>
   nnoremap <silent> <leader>xt :TodoTrouble<CR>
 " }}}
+
+" Go {{{
+  let g:go_code_completion_enabled = 0
+" }}}
+
+" Python {{{
+" }}}
+
 
 " {{{
   " nnoremap gd :lua require'preview'.definition()<CR>
@@ -394,8 +416,6 @@ so /Users/alexx/.config/nvim/bindings/bindings.vim
   " }}}
   " Pulse cursol line {{{
     function! PulseCursorLine()
-      setlocal cursorline
-
       redir => old_hi
           silent execute 'hi CursorLine'
       redir END
@@ -419,7 +439,7 @@ so /Users/alexx/.config/nvim/bindings/bindings.vim
       sleep 10m
 
       execute 'hi ' . old_hi
-      setlocal nocursorline
     endfunction
+    nnoremap <silent><leader>jkjk :call PulseCursorLine()<CR>
   " }}}
 " }}}
