@@ -119,8 +119,7 @@
 " }}}
 
 " Init plugins
-so /Users/alex.zaslavsky/.config/nvim/plugins.lua
-" Init bindings
+so /Users/alex.zaslavsky/.config/nvim/plugins.lua " Init bindings
 so /Users/alex.zaslavsky/.config/nvim/bindings/bindings.vim
 
 " DAP {{{
@@ -163,7 +162,11 @@ so /Users/alex.zaslavsky/.config/nvim/bindings/bindings.vim
 " Python {{{
 " }}}
 
-
+" Copilot {{{
+  let g:copilot_no_tab_map = v:true
+  imap <expr> <Plug>(vimrc:copilot-dummy-map) copilot#Accept("\<Tab>")
+  imap <expr> <Plug>()
+" }}}
 " {{{
   " nnoremap gd :lua require'preview'.definition()<CR>
 " }}}
@@ -383,6 +386,7 @@ so /Users/alex.zaslavsky/.config/nvim/bindings/bindings.vim
         let @/=_s
         call cursor(l, c)
     endfunction
+    " autocmd BufWritePre * call StripTrailingWhitespace()
   " }}}
   " Init Directories (stolen from spf13) {{{
     function! InitializeDirectories()
