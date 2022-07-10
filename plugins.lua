@@ -301,10 +301,10 @@ return require("packer").startup(
           buf_set_keymap('n', ']e',        '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
           buf_set_keymap('n', '<space>q',  '<cmd>lua vim.diagnostic.set_loclist()<CR>', opts)
           buf_set_keymap("n", "<space>,.", "<cmd>lua vim.lsp.buf.formatting()<CR>",       opts)
+          buf_set_keymap("n", "<leader>ca", "<Cmd>lua vim.lsp.buf.code_action()<CR>", opts)
+          buf_set_keymap("v", "<leader>ca", "<Cmd>lua vim.lsp.buf.range_code_action()<CR>", opts)
             -- Telescope {
             buf_set_keymap("n", "<leader>gr", "<Cmd>lua require('telescope.builtin').lsp_references(require'telescope.themes'.get_ivy { })<CR>", opts)
-            buf_set_keymap("n", "<leader>ca", "<Cmd>lua require('telescope.builtin').lsp_code_actions(require'telescope.themes'.get_cursor { winblend = 10 })<CR>", opts)
-            buf_set_keymap("v", "<leader>ca", "<Cmd>lua require('telescope.builtin').lsp_range_code_actions(require'telescope.themes'.get_cursor { winblend = 10 })<CR>", opts)
             buf_set_keymap("n", "<leader>gd", "<Cmd>lua require('telescope.builtin').lsp_definitions(require'telescope.themes'.get_ivy { })<CR>", opts)
             buf_set_keymap('n', '<leader>gi', "<Cmd>lua require('telescope.builtin').lsp_implementations(require'telescope.themes'.get_ivy { })<CR>",   opts)
 
@@ -370,7 +370,7 @@ return require("packer").startup(
               completeUnimported = true,
               staticcheck = true,
               matcher = "fuzzy",
-              experimentalDiagnosticsDelay = "500ms",
+              diagnosticsDelay = "500ms",
               -- diagnosticsDelay = "500ms",
               -- experimentalWatchedFileDelay = "100ms",
               symbolMatcher = "fuzzy",
@@ -402,10 +402,6 @@ return require("packer").startup(
            vim.lsp.handlers['textDocument/documentSymbol'] = lsputil_sym.document_handler
            vim.lsp.handlers['workspace/symbol'] = lsputil_sym.workspace_handler
          end}
-    -- }
-
-    -- Copilot {
-    use {"github/copilot.vim"}
     -- }
 
     -- debug {
@@ -795,8 +791,14 @@ return require("packer").startup(
       -- }
 
       -- Golang {
-        use {"fatih/vim-go",
-             ft = "go"}
+        -- use {"fatih/vim-go",
+        --      ft = "go"}
+        use { 'ray-x/go.nvim',
+              requires = { 'ray-x/guihua.lua' },
+              config = function()
+                require'go'.setup{}
+              end
+        }
       -- }
       -- Python {
         use { 'tmhedberg/SimpylFold'}
