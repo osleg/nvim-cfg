@@ -30,6 +30,9 @@
     set lazyredraw                                  " Don't redraw on every sneeze
     set completeopt=menu,menuone,noselect           " Always show completion menu, don't auto-insert/select
     set noshowmode                                  " Don't show current mode in status line
+    set laststatus=3                                " Use single status line
+    set foldmethod=expr
+    set foldexpr=nvim_treesitter#foldexpr()
     set foldtext=FoldText()                         " Folds text
     set nowrap                                      " Don't wrap lines
     set nolinebreak                                 " Don't break lines
@@ -65,7 +68,8 @@
     set timeoutlen=500                              " Set shorter timeout for mappings
     set cmdheight=2                                 " Little bit more space for messages
     set updatetime=300                              " faster CursorHold action
-    "set jumpoptions=stack
+    au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+   "set jumpoptions=stack
   " }}}
 
   " Search setup {{{
@@ -175,6 +179,10 @@ so /Users/alex.zaslavsky/.config/nvim/bindings/bindings.vim
 
 " Functions {{{
 " TODO: check what still needed, port to lua and remove obsolete
+  " split separator {{{
+    au WinEnter * setl winhl=WinSeparator:WinSeparatorA
+    au WinLeave * setl winhl=WinSeparator:WinSeparator
+  " }}}
   " Clojure thingeys {{{
   " TODO: Move it away
     function! Expand(exp) abort

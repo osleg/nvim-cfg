@@ -66,20 +66,10 @@ return require("packer").startup(
     }
     use { "terrortylor/nvim-comment",
       config = function()
-        require('nvim_comment').setup {
-          -- Normal mode mapping left hand side
-          line_mapping = "<leader>c<space>",
-          -- Visual/Operator mapping left hand side
-          operator_mapping = "<leader>cc"
-        }
+        require('nvim_comment').setup { }
       end
     }
     use "p00f/nvim-ts-rainbow"
-    use { "lewis6991/gitsigns.nvim",
-      config = function()
-        require('gitsigns').setup {}
-      end
-    }
     -- TODO: configure and set bindings through mapper
     use { "numtostr/FTerm.nvim",
       config = function()
@@ -111,13 +101,11 @@ return require("packer").startup(
         require 'lualine'.setup({
           sections = {
             lualine_c = {
-              { 'filename' }
+              { 'filename' },
+              { navic.get_location, cond = navic.is_available }
             },
           },
           winbar = {
-            lualine_z = {
-              { navic.get_location, cond = navic.is_available }
-            }
           },
           inactive_winbar = {}
         })
@@ -130,6 +118,11 @@ return require("packer").startup(
         --    lualine_z = {'progress', 'location'}
         --  },
         --  extensions = {}
+      end
+    }
+    use { "b0o/incline.nvim",
+      config = function ()
+        require'incline'.setup{}
       end
     }
     use { 'simnalamburt/vim-mundo' }
@@ -194,9 +187,9 @@ return require("packer").startup(
         vim.api.nvim_set_keymap("n", "<Leader>bg", "<Cmd>lua require('telescope.builtin').live_grep()<CR>", opts)
         -- }
         -- Git stuff {
-        vim.api.nvim_set_keymap("n", "<Leader>gb", "<Cmd>lua require('telescope.builtin').git_branches()<CR>", opts)
-        vim.api.nvim_set_keymap("n", "<Leader>gs", "<Cmd>lua require('telescope.builtin').git_status()<CR>", opts)
-        vim.api.nvim_set_keymap("n", "<Leader>gS", "<Cmd>lua require('telescope.builtin').git_stash()<CR>", opts)
+          vim.api.nvim_set_keymap("n", "<Leader>gb", "<Cmd>lua require('telescope.builtin').git_branches()<CR>", opts)
+        -- vim.api.nvim_set_keymap("n", "<Leader>gs", "<Cmd>lua require('telescope.builtin').git_status()<CR>", opts)
+        -- vim.api.nvim_set_keymap("n", "<Leader>gS", "<Cmd>lua require('telescope.builtin').git_stash()<CR>", opts)
         -- }
         -- DAP stuff {
         vim.api.nvim_set_keymap('n', '<leader>dtc', '<cmd>lua require"telescope".extensions.dap.commands{}<CR>', opts)
@@ -249,18 +242,13 @@ return require("packer").startup(
           nls.builtins.diagnostics.hadolint,
           nls.builtins.diagnostics.shellcheck,
           nls.builtins.formatting.isort,
+          nls.builtins.diagnostics.vale.with({ filetypes = { "vimwiki", "markdown", "tex", "asciidoc" } })
         }
-        local sources = {
-          nls.builtins.formatting.autopep8,
-          nls.builtins.diagnostics.flake8,
-          nls.builtins.diagnostics.mypy,
-          nls.builtins.diagnostics.hadolint,
-          nls.builtins.diagnostics.shellcheck,
-          nls.builtins.formatting.isort,
-        }
-        nls.setup({ sources = sources,
+        nls.setup({
+          sources = sources,
           debounce = 150,
-          debug = false })
+          debug = false
+        })
       end }
     use { "ray-x/lsp_signature.nvim", }
     use { "rmagatti/goto-preview",
@@ -462,7 +450,18 @@ return require("packer").startup(
             },
           },
         }
-
+        --   nvim_lsp.ltex.setup {
+        --     on_attach = on_attach,
+        --     capabilities = capabilities,
+        --     debounce_text_changes = 150,
+        --     settings = {
+        --       ltex = {
+        --            additionalRules = {
+        --              languageModel = '~/ngrams/',
+        --            },
+        --       },
+        --     },
+        --   }
       end
     }
     use { "RishabhRD/popfix" }
@@ -772,10 +771,6 @@ return require("packer").startup(
           ['<C-f>'] = cmp.mapping(cmp.mapping.scroll_docs(4), { 'i', 'c' }),
           ['<C-Space>'] = cmp.mapping(cmp.mapping.complete(), { 'i', 'c' }),
           ['<C-e>'] = cmp.mapping({ i = cmp.mapping.close(), c = cmp.mapping.close() }),
-          ['<C-g>'] = cmp.mapping(function(fallback)
-            vim.api.nvim_feedkeys(vim.fn['copilot#Accept'](vim.api.nvim_replace_termcodes('<Tab>', true, true, true)),
-              'n', true)
-          end),
           ['<CR>'] = cmp.mapping({
             i = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = false }),
             c = function(fallback)
@@ -832,7 +827,10 @@ return require("packer").startup(
     -- }
 
     -- git {
-    use "sindrets/diffview.nvim"
+    use {
+      "sindrets/diffview.nvim", 
+      requires = 'nvim-lua/plenary.nvim'
+    }
     use { 'TimUntersberger/neogit',
       requires = {
         'nvim-lua/plenary.nvim',
@@ -840,17 +838,30 @@ return require("packer").startup(
       },
       config = function()
         require 'neogit'.setup { integrations = { diffview = true } }
+        local opts = { noremap = true, silent = true }
+        vim.api.nvim_set_keymap("n", "<Leader>gn", "<Cmd>Neogit<CR>", opts)
       end
     }
-    use { 'pwntester/octo.nvim', config = function()
-      require "octo".setup()
-    end }
+    -- use { 'pwntester/octo.nvim', config = function()
+    --   require "octo".setup()
+    -- end }
     -- use {'tpope/vim-fugitive'}
     use { 'junegunn/gv.vim' }
     use { 'ThePrimeagen/git-worktree.nvim',
       config = function()
         require("git-worktree").setup {}
       end }
+    use { "lewis6991/gitsigns.nvim",
+      config = function()
+        on_attach = function(bufnr)
+          local opts = { noremap = true, silent = true }
+          vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>gs', '<cmd>lua require"gitsigns".stage_hunk()<CR>', opts)
+        end
+        require('gitsigns').setup {
+          on_attach = on_attach
+        }
+      end
+    }
     -- }
 
     -- Languages {
@@ -883,6 +894,11 @@ return require("packer").startup(
         require 'go'.setup {}
       end
     }
+    use { 'leoluz/nvim-dap-go',
+      config = function()
+        require'dap-go'.setup {}
+      end
+    }
     -- }
     -- Python {
     use { 'tmhedberg/SimpylFold' }
@@ -893,6 +909,15 @@ return require("packer").startup(
       setup = function() vim.g.mkdp_filetypes = { "markdown" } end,
       ft = { "markdown" }, })
     -- }
+    -- Just {{{
+    use {
+      "IndianBoy42/tree-sitter-just",
+      config = function ()
+        require('tree-sitter-just').setup{}
+      end
+    }
+
+    -- }}}
     -- }
 
     -- Database {
