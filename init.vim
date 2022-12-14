@@ -31,8 +31,6 @@
     set completeopt=menu,menuone,noselect           " Always show completion menu, don't auto-insert/select
     set noshowmode                                  " Don't show current mode in status line
     set laststatus=3                                " Use single status line
-    set foldmethod=expr
-    set foldexpr=nvim_treesitter#foldexpr()
     set foldtext=FoldText()                         " Folds text
     set nowrap                                      " Don't wrap lines
     set nolinebreak                                 " Don't break lines
@@ -51,7 +49,7 @@
     set nornu                                       " No RELATIVE line numbers
     set showmatch                                   " Show matching bracket/parenthesis
     set winminheight=1                              " allow buffers to be 1 line high
-    set winminwidth=1                               " allow buffers to be 1 line high
+    set winminwidth=1                               " allow buffers to be 1 line wide
     set wildmenu                                    " Show list instead of just completing
     set wildmode=longest:full,full                  " Command <Tab> completion, list matches, then longest common part, then all.
     set whichwrap=b,s,<,>,[,]                       " Backspace and cursor keys wrap too
@@ -117,14 +115,14 @@
   " }}}
 
   " Python interpreter {{{
-    let g:python3_host_prog = '/Users/alex.zaslavsky/.virtualenvs/nvim/bin/python'
+    let g:python3_host_prog = '$HOME/.virtualenvs/nvim/bin/python'
   " }}}
 
 " }}}
 
 " Init plugins
-so /Users/alex.zaslavsky/.config/nvim/plugins.lua " Init bindings
-so /Users/alex.zaslavsky/.config/nvim/bindings/bindings.vim
+so $HOME/.config/nvim/plugins.lua " Init bindings
+so $HOME/.config/nvim/bindings/bindings.vim
 
 " DAP {{{
   nnoremap <silent> <leader>dc :lua require'dap'.continue()<CR>
@@ -139,6 +137,11 @@ so /Users/alex.zaslavsky/.config/nvim/bindings/bindings.vim
   nnoremap <silent> <leader>dui :lua require'dapui'.toggle()<CR>
   nnoremap <silent> <leader>duf :lua require'dapui'.float_element()<CR>
 " }}}"
+
+" CodeActionMenu {{{
+  nnoremap <silent> <leader>ca :CodeActionMenu<CR>
+  vnoremap <silent> <leader>ca :CodeActionMenu<CR>
+" }}}
 
 " Theme {{{
   let $NVIM_TUI_ENABLE_TRUE_COLOR=1
@@ -166,15 +169,6 @@ so /Users/alex.zaslavsky/.config/nvim/bindings/bindings.vim
 " }}}
 
 " Python {{{
-" }}}
-
-" Copilot {{{
-  let g:copilot_no_tab_map = v:true
-  imap <expr> <Plug>(vimrc:copilot-dummy-map) copilot#Accept("\<Tab>")
-  imap <expr> <Plug>()
-" }}}
-" {{{
-  " nnoremap gd :lua require'preview'.definition()<CR>
 " }}}
 
 " Functions {{{
