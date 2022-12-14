@@ -612,7 +612,7 @@ return require("packer").startup(
               init_selection = "<C-CR>",
               node_incremental = "<CR>",
               scope_incremental = "<Tab>",
-              node_decremental = "<C-Tab>",
+              node_decremental = "<S-CR>",
             }
           },
           indent = {
