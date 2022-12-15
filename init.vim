@@ -451,3 +451,7 @@ so $HOME/.config/nvim/bindings/bindings.vim
     nnoremap <silent><leader>jkjk :call PulseCursorLine()<CR>
   " }}}
 " }}}
+
+" SymbolsOutline {{{
+  autocmd FileType Outline setlocal signcolumn=no
+" }}}

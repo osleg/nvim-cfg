@@ -220,7 +220,7 @@ return require("packer").startup(
           auto_close = true,
           autofold_depth=1,
         }
-        vim.api.nvim_set_keymap("n", "<Leader>bt", "SymbolsOutline<CR>", {})
+        vim.api.nvim_set_keymap("n", "<Leader>bt", ":SymbolsOutline<CR>", {})
       end }
     use { "jose-elias-alvarez/null-ls.nvim",
       config = function()
