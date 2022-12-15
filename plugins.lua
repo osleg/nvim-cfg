@@ -182,7 +182,6 @@ return require("packer").startup(
           opts)
         vim.api.nvim_set_keymap("n", "<Leader>bf", "<Cmd>lua require('telescope.builtin').git_files()<CR>", opts)
         vim.api.nvim_set_keymap("n", "<Leader>bb", "<Cmd>lua require('telescope.builtin').buffers()<CR>", opts)
-        vim.api.nvim_set_keymap("n", "<Leader>bt", "<Cmd>lua require('telescope.builtin').tags()<CR>", opts)
         vim.api.nvim_set_keymap("n", "<Leader>bo", "<Cmd>lua require('telescope.builtin').oldfiles()<CR>", opts)
         vim.api.nvim_set_keymap("n", "<Leader>bg", "<Cmd>lua require('telescope.builtin').live_grep()<CR>", opts)
         -- }
@@ -221,6 +220,7 @@ return require("packer").startup(
           auto_close = true,
           autofold_depth=1,
         }
+        vim.api.nvim_set_keymap("n", "<Leader>bt", "SymbolsOutline<CR>", {})
       end }
     use { "jose-elias-alvarez/null-ls.nvim",
       config = function()
