@@ -31,7 +31,7 @@
     set completeopt=menu,menuone,noselect           " Always show completion menu, don't auto-insert/select
     set noshowmode                                  " Don't show current mode in status line
     set laststatus=3                                " Use single status line
-    set foldtext=FoldText()                         " Folds text
+    " set foldtext=FoldText()                         " Folds text
     set nowrap                                      " Don't wrap lines
     set nolinebreak                                 " Don't break lines
     set autoindent                                  " Indent at the same level of the previous line
@@ -67,6 +67,7 @@
     set cmdheight=2                                 " Little bit more space for messages
     set updatetime=300                              " faster CursorHold action
     au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+    set guifont=Hack\ Nerd\ Font\ Mono:11
    "set jumpoptions=stack
   " }}}
 
