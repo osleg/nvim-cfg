@@ -20,20 +20,6 @@
   " }}}
   " Fix yank defaults not yanking from cursor
   nnoremap Y y$
-  " Code folding options {{{
-    nmap <leader>ff0 :set foldlevel=0<CR>
-    nmap <leader>ff1 :set foldlevel=1<CR>
-    nmap <leader>ff2 :set foldlevel=2<CR>
-    nmap <leader>ff3 :set foldlevel=3<CR>
-    nmap <leader>ff4 :set foldlevel=4<CR>
-    nmap <leader>ff5 :set foldlevel=5<CR>
-    nmap <leader>ff6 :set foldlevel=6<CR>
-    nmap <leader>ff7 :set foldlevel=7<CR>
-    nmap <leader>ff8 :set foldlevel=8<CR>
-    nmap <leader>ff9 :set foldlevel=9<CR>
-    nmap <leader>ff- :set foldmethod=manual<CR>
-    nmap <leader>ff= :set foldmethod=syntax<CR>
-  " }}}
   " Visual shifting (does not exit Visual mode)  {{{
     vnoremap < <gv
     vnoremap > >gv
