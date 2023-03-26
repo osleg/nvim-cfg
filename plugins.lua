@@ -337,9 +337,9 @@ return require("packer").startup(
         config = function()
           local nls = require('null-ls')
           local sources = {
-            nls.builtins.formatting.autopep8,
-            nls.builtins.diagnostics.flake8,
-            nls.builtins.diagnostics.mypy.with({ prefer_local = true }),
+            -- nls.builtins.formatting.autopep8,
+            -- nls.builtins.diagnostics.flake8,
+            -- nls.builtins.diagnostics.mypy.with({ prefer_local = true }),
             nls.builtins.diagnostics.hadolint,
             nls.builtins.diagnostics.shellcheck,
             nls.builtins.formatting.isort,
@@ -458,13 +458,14 @@ return require("packer").startup(
 
             require 'lsp_signature'.on_attach(client, bufnr)
             require 'nvim-navic'.attach(client, bufnr)
+            require 'nvim-navbuddy'.attach(client, bufnr)
             -- lsp_spinner.on_attach(client, bufnr)
             -- lsp_status.on_attach(client, bufnr)
           end
 
           -- Use a loop to conveniently call 'setup' on multiple servers and
           -- map buffer local keybindings when the language server attaches
-          local servers = { "rust_analyzer", "pyright", "yamlls", "ccls", "jsonls", "tsserver", 'terraformls',
+          local servers = { "rust_analyzer", "pylsp", "yamlls", "ccls", "jsonls", "tsserver", 'terraformls',
             "luau_lsp" }
           for _, lsp in ipairs(servers) do
             if lsp == "jsonls" then
@@ -595,9 +596,7 @@ return require("packer").startup(
           "MunifTanjim/nui.nvim"
         },
         config = function ()
-          require'nvim-navbuddy'.setup{
-            lsp = { auto_attach = true }
-          }
+          require'nvim-navbuddy'.setup{}
         end
       }
       -- }
