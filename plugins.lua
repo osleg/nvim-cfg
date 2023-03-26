@@ -167,8 +167,8 @@ return require("packer").startup(
           end
 
           vim.o.fillchars = [[eob: ,fold: ,foldopen:,foldsep: ,foldclose:]]
-          vim.o.foldcolumn = '0'           -- '0' is not bad
-          vim.o.foldlevel = 99             -- Using ufo provider need a large value, feel free to decrease the value
+          vim.o.foldcolumn = '0' -- '0' is not bad
+          vim.o.foldlevel = 99   -- Using ufo provider need a large value, feel free to decrease the value
           vim.o.foldlevelstart = 5
           vim.o.foldenable = true
 
@@ -486,8 +486,8 @@ return require("packer").startup(
             filetypes = { "go", "gomod" },
             message_level = vim.lsp.protocol.MessageType.Error,
             cmd = {
-              "gopls",                                            -- share the gopls instance if there is one already
-              "-remote=auto", --[[ debug options ]]               --
+              "gopls",                              -- share the gopls instance if there is one already
+              "-remote=auto", --[[ debug options ]] --
               -- "-logfile=auto",
               -- "-debug=:0",
               "-remote.debug=:0"
@@ -508,9 +508,9 @@ return require("packer").startup(
                   unreachable = true
                 },
                 codelenses = {
-                  generate = true,                     -- show the `go generate` lens.
-                  gc_details = true,                   --  // Show a code lens toggling the display of gc's choices.
-                  tidy = true                          -- adding mod tidy
+                  generate = true,   -- show the `go generate` lens.
+                  gc_details = true, --  // Show a code lens toggling the display of gc's choices.
+                  tidy = true        -- adding mod tidy
                 },
                 usePlaceholders = true,
                 completeUnimported = true,
@@ -520,7 +520,7 @@ return require("packer").startup(
                 -- diagnosticsDelay = "500ms",
                 -- experimentalWatchedFileDelay = "100ms",
                 symbolMatcher = "fuzzy",
-                gofumpt = false,                 -- true, -- turn on for new repos, gofmpt is good but also create code turmoils
+                gofumpt = false, -- true, -- turn on for new repos, gofmpt is good but also create code turmoils
                 buildFlags = { "-tags", "integration" }
                 -- buildFlags = {"-tags", "functional"}
               }
@@ -588,6 +588,18 @@ return require("packer").startup(
           vim.lsp.handlers['textDocument/documentSymbol'] = lsputil_sym.document_handler
           vim.lsp.handlers['workspace/symbol'] = lsputil_sym.workspace_handler
         end }
+      use { "SmiteshP/nvim-navbuddy",
+        requires = {
+          "neovim/nvim-lspconfig",
+          "SmiteshP/nvim-navic",
+          "MunifTanjim/nui.nvim"
+        },
+        config = function ()
+          require'nvim-navbuddy'.setup{
+            lsp = { auto_attach = true }
+          }
+        end
+      }
       -- }
 
       -- debug {
@@ -651,7 +663,7 @@ return require("packer").startup(
           local dap = require('dap')
           dap.adapters.lldb = {
             type = 'executable',
-            command = '/Users/alexx/.cargo/bin/rust-lldb',             -- adjust as needed
+            command = '/Users/alexx/.cargo/bin/rust-lldb', -- adjust as needed
             name = "lldb"
           }
           dap.configurations.rust = {
@@ -699,20 +711,20 @@ return require("packer").startup(
                   "watches"
                 },
                 size = 40,
-                position = "left"                 -- Can be "left" or "right"
+                position = "left" -- Can be "left" or "right"
               },
               {
                 elements = {
                   "repl",
                   "console"
                 },
-                position = "bottom",                 -- Can be "bottom" or "top"
+                position = "bottom", -- Can be "bottom" or "top"
                 size = 10,
               }
             },
             floating = {
-              max_height = nil,               -- These can be integers or a float between 0 and 1.
-              max_width = nil                 -- Floats will be treated as percentage of your screen.
+              max_height = nil, -- These can be integers or a float between 0 and 1.
+              max_width = nil   -- Floats will be treated as percentage of your screen.
             }
           })
         end
@@ -764,10 +776,10 @@ return require("packer").startup(
         config = function()
           require("nvim-treesitter.parsers").get_parser_configs().just = {
             install_info = {
-              url = "https://github.com/IndianBoy42/tree-sitter-just",               -- local path or git repo
+              url = "https://github.com/IndianBoy42/tree-sitter-just", -- local path or git repo
               files = { "src/parser.c", "src/scanner.cc" },
               branch = "main",
-              use_makefile = true               -- this may be necessary on MacOS (try if you see compiler errors)
+              use_makefile = true -- this may be necessary on MacOS (try if you see compiler errors)
             },
             maintainers = { "@IndianBoy42" },
           }
@@ -830,7 +842,7 @@ return require("packer").startup(
           },
           sources = cmp.config.sources({
             { name = 'nvim_lsp' },
-            { name = 'ultisnips' },             -- For ultisnips users.
+            { name = 'ultisnips' }, -- For ultisnips users.
             { name = 'buffer' },
             { name = 'path' },
           }),
@@ -988,9 +1000,8 @@ return require("packer").startup(
       -- }
 
       -- wiki {
-      use {
-        "nvim-neorg/neorg",
-        run = ":Neorg sync-parsers",         -- This is the important bit!
+      use { "nvim-neorg/neorg",
+        run = ":Neorg sync-parsers", -- This is the important bit!
         config = function()
           require("neorg").setup {
             load = {
@@ -1011,9 +1022,23 @@ return require("packer").startup(
       }
       -- use 'vimwiki/vimwiki'
       -- use 'tbabej/taskwiki'
-      use { 'ribelo/taskwarrior.nvim', config = function()
-        require('taskwarrior_nvim').setup {}
-      end }
+      -- use { 'ribelo/taskwarrior.nvim',
+      --   config = function()
+      --     require('taskwarrior_nvim').setup {}
+      --   end,
+      --   -- keys = {
+      --   --   {
+      --   --     "<leader>tw",
+      --   --     ":Task ",
+      --   --   },
+      --   --   {
+      --   --     "<leader>tW",
+      --   --     function()
+      --   --       require("taskwarrior_nvim").browser({ "ready" })
+      --   --     end,
+      --   --   },
+      --   -- },
+      -- }
       use { "mickael-menu/zk-nvim",
         requires = { "neovim/nvim-lspconfig",
           "nvim-telescope/telescope.nvim" },
@@ -1105,11 +1130,11 @@ return require("packer").startup(
               {
                 name = "Connect to external session",
                 type = "go",
-                debugAdapter = "dlv-dap",                 -- `legacy` by default
+                debugAdapter = "dlv-dap", -- `legacy` by default
                 request = "attach",
                 mode = "remote",
                 port = 38697,
-                host = "",                 -- can skip for localhost
+                host = "", -- can skip for localhost
               },
             }
           }
