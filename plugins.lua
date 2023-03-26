@@ -465,7 +465,7 @@ return require("packer").startup(
 
           -- Use a loop to conveniently call 'setup' on multiple servers and
           -- map buffer local keybindings when the language server attaches
-          local servers = { "rust_analyzer", "pylsp", "yamlls", "ccls", "jsonls", "tsserver", 'terraformls',
+          local servers = { "rust_analyzer", "yamlls", "ccls", "jsonls", "tsserver", 'terraformls',
             "luau_lsp" }
           for _, lsp in ipairs(servers) do
             if lsp == "jsonls" then
@@ -481,6 +481,22 @@ return require("packer").startup(
               }
             }
           end
+          nvim_lsp['pylsp'].setup {
+            on_attach = on_attach,
+            capabilities = capabilities,
+            flags = {
+              debounce_text_changes = 150,
+            },
+            settings = {
+              pylsp = {
+                plugins = {
+                  rope_autoimport = {
+                    enabled = true
+                  }
+                }
+              }
+            }
+          }
           nvim_lsp['gopls'].setup {
             on_attach = on_attach,
             capabilities = capabilities,
