@@ -25,7 +25,9 @@ return require("packer").startup(
           vim.api.nvim_set_keymap('n', '<C-j>', ':lua require("smart-splits").move_cursor_down()<CR>', opts)
           vim.api.nvim_set_keymap('n', '<C-k>', ':lua require("smart-splits").move_cursor_up()<CR>', opts)
           vim.api.nvim_set_keymap('n', '<C-l>', ':lua require("smart-splits").move_cursor_right()<CR>', opts)
-        end }
+        end,
+        run = './install-kitty.sh'
+      }
       use "nvim-lua/plenary.nvim"
       use "junegunn/vim-easy-align"
       use { "tpope/vim-rsi" }
@@ -73,7 +75,7 @@ return require("packer").startup(
           require('nvim_comment').setup {}
         end
       }
-      use "p00f/nvim-ts-rainbow"
+      use "HiPhish/nvim-ts-rainbow2"
       -- TODO: configure and set bindings through mapper
       use { "numtostr/FTerm.nvim",
         config = function()
@@ -338,8 +340,10 @@ return require("packer").startup(
           local nls = require('null-ls')
           local sources = {
             -- nls.builtins.formatting.autopep8,
-            -- nls.builtins.diagnostics.flake8,
+            nls.builtins.diagnostics.flake8,
+            nls.builtins.diagnostics.semgrep,
             -- nls.builtins.diagnostics.mypy.with({ prefer_local = true }),
+            nls.builtins.code_actions.refactoring,
             nls.builtins.diagnostics.hadolint,
             nls.builtins.diagnostics.shellcheck,
             nls.builtins.formatting.isort,
@@ -466,7 +470,7 @@ return require("packer").startup(
           -- Use a loop to conveniently call 'setup' on multiple servers and
           -- map buffer local keybindings when the language server attaches
           local servers = { "rust_analyzer", "yamlls", "ccls", "jsonls", "tsserver", 'terraformls',
-            "luau_lsp" }
+            "luau_lsp", "pyright" }
           for _, lsp in ipairs(servers) do
             if lsp == "jsonls" then
               capabilities.textDocument.completion.completionItem.snippetSupport = true
@@ -481,22 +485,22 @@ return require("packer").startup(
               }
             }
           end
-          nvim_lsp['pylsp'].setup {
-            on_attach = on_attach,
-            capabilities = capabilities,
-            flags = {
-              debounce_text_changes = 150,
-            },
-            settings = {
-              pylsp = {
-                plugins = {
-                  rope_autoimport = {
-                    enabled = true
-                  }
-                }
-              }
-            }
-          }
+          -- nvim_lsp['pylsp'].setup {
+          --   on_attach = on_attach,
+          --   capabilities = capabilities,
+          --   flags = {
+          --     debounce_text_changes = 150,
+          --   },
+          --   settings = {
+          --     pylsp = {
+          --       plugins = {
+          --         rope_autoimport = {
+          --           enabled = true
+          --         }
+          --       }
+          --     }
+          --   }
+          -- }
           nvim_lsp['gopls'].setup {
             on_attach = on_attach,
             capabilities = capabilities,
@@ -585,11 +589,22 @@ return require("packer").startup(
         end
       }
       use { "RishabhRD/popfix" }
-      use({
-        'weilbith/nvim-code-action-menu',
-        cmd = 'CodeActionMenu',
+      use({ 'weilbith/nvim-code-action-menu',
+            cmd = 'CodeActionMenu',
       })
-      use { "onsails/lspkind-nvim" }
+      use { "onsails/lspkind-nvim",
+        config = function()
+          require('lspkind').init({
+            symbol_map = {
+              Text = '',
+              Method = 'ƒ',
+              Function = '',
+              Constructor = '',
+              Copilot = ''
+            }
+          })
+        end
+      }
       use { "RishabhRD/nvim-lsputils",
         requires = { { "RishabhRD/popfix" } },
         config = function()
@@ -611,8 +626,8 @@ return require("packer").startup(
           "SmiteshP/nvim-navic",
           "MunifTanjim/nui.nvim"
         },
-        config = function ()
-          require'nvim-navbuddy'.setup{}
+        config = function()
+          require 'nvim-navbuddy'.setup {}
         end
       }
       -- }
@@ -771,11 +786,7 @@ return require("packer").startup(
               enable = true,
               disable = { "python" }
             },
-            rainbow = {
-              enable = true,
-              extended_mode = false,
-              max_file_lines = 4000
-            }
+            rainbow = { enable = true }
           }
         end
       }
@@ -785,7 +796,7 @@ return require("packer").startup(
           require 'nvim-navic'.setup {}
         end
       }
-      -- Just {{{
+      -- Just {
       use {
         "IndianBoy42/tree-sitter-just",
         config = function()
@@ -800,7 +811,7 @@ return require("packer").startup(
           }
         end
       }
-      -- }}}
+      -- }
       -- }
 
       -- completion {
@@ -831,6 +842,21 @@ return require("packer").startup(
       use { 'hrsh7th/cmp-path' }
       use { 'hrsh7th/cmp-cmdline' }
       use { 'quangnguyen30192/cmp-nvim-ultisnips' }
+      use { "zbirenbaum/copilot.lua",
+        config = function()
+          require 'copilot'.setup {
+            suggestion = { enabled = false },
+            panel = { enabled = false },
+          }
+        end
+      }
+      use { "zbirenbaum/copilot-cmp",
+        after = { "copilot.lua" },
+        requires = { "zbirenbaum/copilot.lua" },
+        config = function()
+          require("copilot_cmp").setup()
+        end
+      }
       use { 'hrsh7th/nvim-cmp', config = function()
         local t = function(str)
           return vim.api.nvim_replace_termcodes(str, true, true, true)
@@ -853,11 +879,12 @@ return require("packer").startup(
             end
           },
           completion = {
-            keyword_length = 1
+            keyword_length = 0
           },
           sources = cmp.config.sources({
+            { name = 'ultisnips' },
+            { name = 'copilot' },
             { name = 'nvim_lsp' },
-            { name = 'ultisnips' }, -- For ultisnips users.
             { name = 'buffer' },
             { name = 'path' },
           }),
@@ -953,7 +980,7 @@ return require("packer").startup(
             }),
             ['<C-b>'] = cmp.mapping(cmp.mapping.scroll_docs(-4), { 'i', 'c' }),
             ['<C-f>'] = cmp.mapping(cmp.mapping.scroll_docs(4), { 'i', 'c' }),
-            ['<C-Space>'] = cmp.mapping(cmp.mapping.complete(), { 'i', 'c' }),
+            ['<C-Space>'] = cmp.mapping.complete(),
             ['<C-e>'] = cmp.mapping({ i = cmp.mapping.close(), c = cmp.mapping.close() }),
             ['<CR>'] = cmp.mapping({
               i = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = false }),
@@ -972,7 +999,7 @@ return require("packer").startup(
           completion = { autocomplete = false },
           sources = {
             -- { name = 'buffer' }
-            { name = 'buffer', opts = { keyword_pattern = [=[[^[:blank:]].*]=] } }
+            { name = 'buffer', option = { keyword_pattern = [=[[^[:blank:]].*]=] } }
           }
         })
 
