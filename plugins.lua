@@ -1062,32 +1062,6 @@ return require("packer").startup(
           }
         end,
       }
-      -- use 'vimwiki/vimwiki'
-      -- use 'tbabej/taskwiki'
-      -- use { 'ribelo/taskwarrior.nvim',
-      --   config = function()
-      --     require('taskwarrior_nvim').setup {}
-      --   end,
-      --   -- keys = {
-      --   --   {
-      --   --     "<leader>tw",
-      --   --     ":Task ",
-      --   --   },
-      --   --   {
-      --   --     "<leader>tW",
-      --   --     function()
-      --   --       require("taskwarrior_nvim").browser({ "ready" })
-      --   --     end,
-      --   --   },
-      --   -- },
-      -- }
-      use { "mickael-menu/zk-nvim",
-        requires = { "neovim/nvim-lspconfig",
-          "nvim-telescope/telescope.nvim" },
-        config = function()
-          require 'zk'.setup()
-        end
-      }
       -- }
 
       -- git {
