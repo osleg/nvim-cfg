@@ -8,6 +8,36 @@ return require("packer").startup(
       use "wbthomason/packer.nvim"
 
       -- Vim stuff {
+      -- use { "folke/noice.nvim",
+      --   config = function()
+      --     require("noice").setup({
+      --       lsp = {
+      --         -- override markdown rendering so that **cmp** and other plugins use **Treesitter**
+      --         override = {
+      --           ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+      --           ["vim.lsp.util.stylize_markdown"] = true,
+      --           ["cmp.entry.get_documentation"] = true,
+      --         },
+      --       },
+      --       -- you can enable a preset for easier configuration
+      --       presets = {
+      --         bottom_search = true,         -- use a classic bottom cmdline for search
+      --         command_palette = true,       -- position the cmdline and popupmenu together
+      --         long_message_to_split = true, -- long messages will be sent to a split
+      --         inc_rename = false,           -- enables an input dialog for inc-rename.nvim
+      --         lsp_doc_border = false,       -- add a border to hover docs and signature help
+      --       },
+      --     })
+      --   end,
+      --   requires = {
+      --     -- if you lazy-load any plugin below, make sure to add proper `module="..."` entries
+      --     "MunifTanjim/nui.nvim",
+      --     -- OPTIONAL:
+      --     --   `nvim-notify` is only needed, if you want to use the notification view.
+      --     --   If not available, we use `mini` as the fallback
+      --     "rcarriga/nvim-notify",
+      --   }
+      -- }
       use { "shortcuts/no-neck-pain.nvim" }
       use 'eandrju/cellular-automaton.nvim'
       use { 'mrjones2014/smart-splits.nvim',
@@ -100,6 +130,25 @@ return require("packer").startup(
           require 'nvim-tree'.setup {}
         end
       }
+      -- use { 'stevearc/oil.nvim',
+      --   config = function()
+      --     require('oil').setup({
+      --       keymaps = {
+      --         ["g?"] = "actions.show_help",
+      --         ["<CR>"] = "actions.select",
+      --         ["<C-v>"] = "actions.select_vsplit",
+      --         ["<C-s>"] = "actions.select_split",
+      --         ["<Tab"] = "actions.preview",
+      --         ["<C-c>"] = "actions.close",
+      --         ["<C-r>"] = "actions.refresh",
+      --         ["-"] = "actions.parent",
+      --         ["_"] = "actions.open_cwd",
+      --         ["`"] = "actions.cd",
+      --         ["~"] = "actions.tcd",
+      --         ["g."] = "actions.toggle_hidden",
+      --       },
+      --     })
+      --   end }
       use 'famiu/bufdelete.nvim'
       use { 'nvim-lualine/lualine.nvim',
         config = function()
@@ -107,8 +156,7 @@ return require("packer").startup(
           require 'lualine'.setup({
             sections = {
               lualine_c = {
-                { 'filename' },
-                { navic.get_location, cond = navic.is_available }
+                { "navic" }
               },
             },
             winbar = {
@@ -368,6 +416,11 @@ return require("packer").startup(
         config = function()
           vim.cmd [[autocmd CursorHold,CursorHoldI * lua require'nvim-lightbulb'.update_lightbulb()]]
         end }
+      use { "https://git.sr.ht/~whynothugo/lsp_lines.nvim",
+        config = function()
+          require("lsp_lines").setup()
+        end,
+      }
       use { "neovim/nvim-lspconfig",
         requires = {
           { "ray-x/lsp_signature.nvim" },
@@ -384,7 +437,7 @@ return require("packer").startup(
 
           -- disable virtual text
           vim.diagnostic.config({
-            virtual_text = true,
+            virtual_text = false,
           })
 
           -- Use an on_attach function to only map the following keys
@@ -431,15 +484,19 @@ return require("packer").startup(
             -- buf_set_keymap('n', '<space>wr', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', opts)
             -- buf_set_keymap('n', '<space>wl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', opts)
             -- buf_set_keymap('n', '<space>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>',      opts)
+  
+            -- disable/enable error lines
+            buf_set_keymap('n', '<space>e', '<cmd>lua require"lsp_lines".toggle()<CR>', opts)
 
             -- See `:help vim.lsp.*` for documentation on any of the below functions
             buf_set_keymap('n', 'gD', '<Cmd>lua vim.lsp.buf.declaration()<CR>', opts)
-            buf_set_keymap('n', '<C-]>', '<Cmd>lua vim.lsp.buf.definition()<CR>', opts)
+            buf_set_keymap('n', '<C-]>', "<Cmd>lua vim.lsp.buf.definition(require'telescope.themes'.get_ivy { })<CR>",
+              opts)
             buf_set_keymap('n', 'K', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
             buf_set_keymap('n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+            buf_set_keymap('i', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
             buf_set_keymap('n', '<space>D', '<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
             buf_set_keymap('n', '<space>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
-            buf_set_keymap('n', '<space>e', '<cmd>lua vim.diagnostic.show_line_diagnostics()<CR>', opts)
             buf_set_keymap('n', '[e', '<cmd>lua vim.diagnostic.goto_prev()<CR>', opts)
             buf_set_keymap('n', ']e', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
             -- buf_set_keymap('n', '<space>q', '<cmd>lua vim.diagnostic.set_loclist()<CR>', opts)
@@ -589,8 +646,9 @@ return require("packer").startup(
         end
       }
       use { "RishabhRD/popfix" }
-      use({ 'weilbith/nvim-code-action-menu',
-            cmd = 'CodeActionMenu',
+      use({
+        'weilbith/nvim-code-action-menu',
+        cmd = 'CodeActionMenu',
       })
       use { "onsails/lspkind-nvim",
         config = function()
@@ -1036,6 +1094,18 @@ return require("packer").startup(
               java = true,
             },
           })
+          -- Remaps for the refactoring operations currently offered by the plugin
+          vim.api.nvim_set_keymap("v", "<leader>re", [[ <Esc><Cmd>lua require('refactoring').refactor('Extract Function')<CR>]], {noremap = true, silent = true, expr = false})
+          vim.api.nvim_set_keymap("v", "<leader>rf", [[ <Esc><Cmd>lua require('refactoring').refactor('Extract Function To File')<CR>]], {noremap = true, silent = true, expr = false})
+          vim.api.nvim_set_keymap("v", "<leader>rv", [[ <Esc><Cmd>lua require('refactoring').refactor('Extract Variable')<CR>]], {noremap = true, silent = true, expr = false})
+          vim.api.nvim_set_keymap("v", "<leader>ri", [[ <Esc><Cmd>lua require('refactoring').refactor('Inline Variable')<CR>]], {noremap = true, silent = true, expr = false})
+
+          -- Extract block doesn't need visual mode
+          vim.api.nvim_set_keymap("n", "<leader>rb", [[ <Cmd>lua require('refactoring').refactor('Extract Block')<CR>]], {noremap = true, silent = true, expr = false})
+          vim.api.nvim_set_keymap("n", "<leader>rbf", [[ <Cmd>lua require('refactoring').refactor('Extract Block To File')<CR>]], {noremap = true, silent = true, expr = false})
+
+          -- Inline variable can also pick up the identifier currently under the cursor without visual mode
+          vim.api.nvim_set_keymap("n", "<leader>ri", [[ <Cmd>lua require('refactoring').refactor('Inline Variable')<CR>]], {noremap = true, silent = true, expr = false})
         end
 
       }
@@ -1048,7 +1118,7 @@ return require("packer").startup(
           require("neorg").setup {
             load = {
               ["core.defaults"] = {},
-              ["core.norg.dirman"] = {
+              ["core.dirman"] = {
                 config = {
                   workspaces = {
                     proj = "~/notes/projects",
@@ -1056,8 +1126,8 @@ return require("packer").startup(
                   }
                 }
               },
-              ["core.norg.concealer"] = {},
-              ["core.norg.completion"] = { config = { engine = 'nvim-cmp' } },
+              ["core.concealer"] = {},
+              ["core.completion"] = { config = { engine = 'nvim-cmp' } },
             }
           }
         end,
@@ -1069,7 +1139,7 @@ return require("packer").startup(
         "sindrets/diffview.nvim",
         requires = 'nvim-lua/plenary.nvim'
       }
-      use { 'TimUntersberger/neogit',
+      use { 'NeogitOrg/neogit',
         requires = {
           'nvim-lua/plenary.nvim',
           'sindrets/diffview.nvim'
@@ -1091,7 +1161,7 @@ return require("packer").startup(
         end }
       use { "lewis6991/gitsigns.nvim",
         config = function()
-          on_attach = function(bufnr)
+          local on_attach = function(bufnr)
             local opts = { noremap = true, silent = true }
             vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>gs', '<cmd>lua require"gitsigns".stage_hunk()<CR>',
               opts)
