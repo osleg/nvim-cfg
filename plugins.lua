@@ -1,12 +1,18 @@
-local packer = require("packer")
-local use = packer.use
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system({
+    "git",
+    "clone",
+    "--filter=blob:none",
+    "https://github.com/folke/lazy.nvim.git",
+    "--branch=stable", -- latest stable release
+    lazypath,
+  })
+end
+vim.opt.rtp:prepend(lazypath)
 
-return require("packer").startup(
+require("lazy").setup(
   {
-    function()
-      -- packer itself
-      use "wbthomason/packer.nvim"
-
       -- Vim stuff {
       -- use { "folke/noice.nvim",
       --   config = function()
@@ -29,7 +35,7 @@ return require("packer").startup(
       --       },
       --     })
       --   end,
-      --   requires = {
+      --   dependencies = {
       --     -- if you lazy-load any plugin below, make sure to add proper `module="..."` entries
       --     "MunifTanjim/nui.nvim",
       --     -- OPTIONAL:
@@ -38,50 +44,21 @@ return require("packer").startup(
       --     "rcarriga/nvim-notify",
       --   }
       -- }
-      use { "shortcuts/no-neck-pain.nvim" }
-      use 'eandrju/cellular-automaton.nvim'
-      use { 'mrjones2014/smart-splits.nvim',
-        config = function()
-          local map = vim.api.nvim_set_keymap
-          local opts = { noremap = true, silent = true }
-
-          -- resizing splits
-          vim.api.nvim_set_keymap('n', '<A-h>', ':lua require("smart-splits").resize_left()<CR>', opts)
-          vim.api.nvim_set_keymap('n', '<A-j>', ':lua require("smart-splits").resize_down()<CR>', opts)
-          vim.api.nvim_set_keymap('n', '<A-k>', ':lua require("smart-splits").resize_up()<CR>', opts)
-          vim.api.nvim_set_keymap('n', '<A-l>', ':lua require("smart-splits").resize_right()<CR>', opts)
-          -- mapi.nvim_etw_oving een splits
-          vim.api.nvim_set_keymap('n', '<C-h>', ':lua require("smart-splits").move_cursor_left()<CR>', opts)
-          vim.api.nvim_set_keymap('n', '<C-j>', ':lua require("smart-splits").move_cursor_down()<CR>', opts)
-          vim.api.nvim_set_keymap('n', '<C-k>', ':lua require("smart-splits").move_cursor_up()<CR>', opts)
-          vim.api.nvim_set_keymap('n', '<C-l>', ':lua require("smart-splits").move_cursor_right()<CR>', opts)
-        end,
-        run = './install-kitty.sh'
-      }
-      use "nvim-lua/plenary.nvim"
-      use "junegunn/vim-easy-align"
-      use { "tpope/vim-rsi" }
-      use { "tpope/vim-surround" }
-      use "godlygeek/tabular"
-      use "folke/lsp-colors.nvim"
-      use { "folke/which-key.nvim",
-        config = function()
-          require('which-key').setup {}
-        end
-      }
-      use { 'folke/twilight.nvim',
-        config = function()
-          require("twilight").setup {}
-        end }
-      use { 'folke/zen-mode.nvim',
-        config = function()
-          require 'zen-mode'.setup {}
-        end }
-      use 'folke/tokyonight.nvim'
-      use { "folke/todo-comments.nvim",
-        requires = "nvim-lua/plenary.nvim",
-        config = function()
-          require("todo-comments").setup {
+     { "shortcuts/no-neck-pain.nvim" },
+     'eandrju/cellular-automaton.nvim',
+     "nvim-lua/plenary.nvim",
+     "junegunn/vim-easy-align",
+     { "tpope/vim-rsi" },
+     { "tpope/vim-surround" },
+     "godlygeek/tabular",
+     { "folke/lsp-colors.nvim", opts={} },
+     { "folke/which-key.nvim", opts={} },
+     { 'folke/twilight.nvim', opts={} },
+     { 'folke/zen-mode.nvim', opts={} },
+     'folke/tokyonight.nvim',
+     { "folke/todo-comments.nvim",
+        dependencies = "nvim-lua/plenary.nvim",
+        opts = {
             highlight = {
               pattern = [[.*<(KEYWORDS)\s*\(*\w*\)*:]],
             },
@@ -89,25 +66,22 @@ return require("packer").startup(
               pattern = [[\b(KEYWORDS)\s*\(*\w*\)*:]],
             }
           }
-        end
-      }
-      use { "folke/trouble.nvim",
-        requires = "kyazdani42/nvim-web-devicons",
-        config = function()
-          require("trouble").setup {
+      },
+     { "folke/trouble.nvim",
+        dependencies = "nvim-tree/nvim-web-devicons",
+        opts = {
             auto_fold = true,
             auto_preview = false,
           }
-        end
-      }
-      use { "terrortylor/nvim-comment",
-        config = function()
-          require('nvim_comment').setup {}
-        end
-      }
-      use "HiPhish/nvim-ts-rainbow2"
+      },
+     { "terrortylor/nvim-comment",
+       config = function()
+         require('nvim_comment').setup()
+       end
+     },
+     "HiPhish/nvim-ts-rainbow2",
       -- TODO: configure and set bindings through mapper
-      use { "numtostr/FTerm.nvim",
+     { "numtostr/FTerm.nvim",
         config = function()
           local map = vim.api.nvim_set_keymap
           local opts = { noremap = true, silent = true }
@@ -124,33 +98,19 @@ return require("packer").startup(
             }
           })
         end
-      }
-      use { "kyazdani42/nvim-tree.lua",
+      },
+      { "nvim-tree/nvim-tree.lua",
+        version = "*",
+        lazy = false,
+        dependencies = {
+          "nvim-tree/nvim-web-devicons",
+        },
         config = function()
-          require 'nvim-tree'.setup {}
-        end
-      }
-      -- use { 'stevearc/oil.nvim',
-      --   config = function()
-      --     require('oil').setup({
-      --       keymaps = {
-      --         ["g?"] = "actions.show_help",
-      --         ["<CR>"] = "actions.select",
-      --         ["<C-v>"] = "actions.select_vsplit",
-      --         ["<C-s>"] = "actions.select_split",
-      --         ["<Tab"] = "actions.preview",
-      --         ["<C-c>"] = "actions.close",
-      --         ["<C-r>"] = "actions.refresh",
-      --         ["-"] = "actions.parent",
-      --         ["_"] = "actions.open_cwd",
-      --         ["`"] = "actions.cd",
-      --         ["~"] = "actions.tcd",
-      --         ["g."] = "actions.toggle_hidden",
-      --       },
-      --     })
-      --   end }
-      use 'famiu/bufdelete.nvim'
-      use { 'nvim-lualine/lualine.nvim',
+          require("nvim-tree").setup {}
+        end,
+      },
+     'famiu/bufdelete.nvim',
+     { 'nvim-lualine/lualine.nvim',
         config = function()
           local navic = require 'nvim-navic'
           require 'lualine'.setup({
@@ -173,24 +133,21 @@ return require("packer").startup(
           --  },
           --  extensions = {}
         end
-      }
-      use { "b0o/incline.nvim",
-        config = function()
-          require 'incline'.setup {}
-        end
-      }
-      use { 'simnalamburt/vim-mundo' }
-      use { 'windwp/nvim-autopairs',
-        config = function()
-          require 'nvim-autopairs'.setup {}
-        end
-      }
-      use { "kevinhwang91/nvim-ufo",
-        requires = { 'kevinhwang91/promise-async' },
+      },
+     { "b0o/incline.nvim",
+      config = function()
+        require("incline").setup()
+      end,
+      event = "VeryLazy"
+     },
+     { 'simnalamburt/vim-mundo' },
+     { 'windwp/nvim-autopairs' },
+     { "kevinhwang91/nvim-ufo",
+        dependencies = { 'kevinhwang91/promise-async' },
         config = function()
           local handler = function(virtText, lnum, endLnum, width, truncate)
             local newVirtText = {}
-            local suffix = ('  %d '):format(endLnum - lnum)
+            local suffix = (' 󰁂 %d '):format(endLnum - lnum)
             local sufWidth = vim.fn.strdisplaywidth(suffix)
             local targetWidth = width - sufWidth
             local curWidth = 0
@@ -237,49 +194,29 @@ return require("packer").startup(
           }
           require('ufo').setup({
             open_fold_hl_timeout = 150,
-            close_fold_kinds = { 'imports', 'comment' },
+            enable_get_fold_virt_text = true,
+            close_fold_kinds_for_fot = { go = {'imports', 'comment'} },
             fold_virt_text_handler = handler,
             provider_selector = function(bufnr, filetype, buftype)
               return ftMap[filetype] or { 'treesitter', 'indent' }
             end
           })
         end
-      }
-      use { 'cshuaimin/ssr.nvim',
-        module = "ssr",
-        -- Calling setup is optional.
-        config = function()
-          require("ssr").setup {
-            min_width = 50,
-            min_height = 5,
-            max_width = 120,
-            max_height = 25,
-            keymaps = {
-              close = "q",
-              next_match = "n",
-              prev_match = "N",
-              replace_confirm = "<cr>",
-              replace_all = "<leader><cr>",
-            },
-          }
-          vim.keymap.set({ "n", "x" }, "<leader>sr", function() require("ssr").open() end)
-        end
-      }
-      use "rcarriga/nvim-notify"
+      },
+     "rcarriga/nvim-notify",
       -- }
 
       -- Telescope {
       -- use {"nvim-telescope/telescope-fzf-writer.nvim"}
-      use { "nvim-telescope/telescope-frecency.nvim",
-        requires = { "tami5/sqlite.lua" } }
+     -- { "nvim-telescope/telescope-frecency.nvim",
+     --    dependencies = { "tami5/sqlite.lua" } },
 
-      use { "nvim-telescope/telescope-dap.nvim" }
-      use { "nvim-telescope/telescope.nvim",
-        requires = {
+     { "nvim-telescope/telescope-dap.nvim" },
+     { "nvim-telescope/telescope.nvim",
+        dependencies = {
           { 'nvim-lua/popup.nvim' },
           { 'nvim-lua/plenary.nvim' },
           { 'nvim-telescope/telescope-fzf-writer.nvim' },
-          { "nvim-telescope/telescope-frecency.nvim" },
           { 'ThePrimeagen/git-worktree.nvim' },
           { "nvim-telescope/telescope-dap.nvim" }
         },
@@ -290,7 +227,6 @@ return require("packer").startup(
           telescope.load_extension("git_worktree")
           telescope.load_extension("dap")
           -- telescope.load_extension("fzf_writer")
-          telescope.load_extension("frecency")
           telescope.load_extension("refactoring")
           telescope.setup {
             defaults = {
@@ -310,16 +246,14 @@ return require("packer").startup(
                 -- Disabled by default.
                 -- Will probably slow down some aspects of the sorter, but can make color highlights.
                 -- I will work on this more later.
-                use_highlighter = true,
+              _highlighter = true,
               }
             }
           }
           local opts = { noremap = true, silent = true }
           -- mappings {
+          vim.api.nvim_set_keymap("n", "<Leader>gg", "<Cmd>lua require('telescope.builtin').resume()<CR>", opts)
           -- Buffer/file stuff {
-          vim.api.nvim_set_keymap("n", "<Leader>bF",
-            "<Cmd>lua require('telescope').extensions.frecency.frecency()<CR>",
-            opts)
           vim.api.nvim_set_keymap("n", "<Leader>bf", "<Cmd>lua require('telescope.builtin').git_files()<CR>",
             opts)
           vim.api.nvim_set_keymap("n", "<Leader>bb", "<Cmd>lua require('telescope.builtin').buffers()<CR>",
@@ -332,6 +266,8 @@ return require("packer").startup(
           -- Git stuff {
           vim.api.nvim_set_keymap("n", "<Leader>gb", "<Cmd>lua require('telescope.builtin').git_branches()<CR>",
             opts)
+          vim.api.nvim_set_keymap("n", "<Leader>gws", "<Cmd>lua require('telescope').extensions.git_worktree.git_worktrees()<CR>", opts)
+          vim.api.nvim_set_keymap("n", "<Leader>gwc", "<Cmd>lua require('telescope').extensions.git_worktree.create_git_worktree()<CR>", opts)
           -- vim.api.nvim_set_keymap("n", "<Leader>gs", "<Cmd>lua require('telescope.builtin').git_status()<CR>", opts)
           -- vim.api.nvim_set_keymap("n", "<Leader>gS", "<Cmd>lua require('telescope.builtin').git_stash()<CR>", opts)
           -- }
@@ -365,15 +301,16 @@ return require("packer").startup(
           -- }
           -- }
         end
-      }
+      },
       --}
 
       -- lsp {
-      use { "j-hui/fidget.nvim",
+     { "j-hui/fidget.nvim", lazy=false, cmd="Fidget",
         config = function()
-          require 'fidget'.setup {}
-        end }
-      use { "simrat39/symbols-outline.nvim",
+          require("fidget").setup {}
+        end
+     },
+     { "simrat39/symbols-outline.nvim",
         config = function()
           require 'symbols-outline'.setup {
             relative_width = false,
@@ -382,47 +319,49 @@ return require("packer").startup(
             autofold_depth = 1,
           }
           vim.api.nvim_set_keymap("n", "<Leader>bt", ":SymbolsOutline<CR>", {})
-        end }
-      use { "jose-elias-alvarez/null-ls.nvim",
-        config = function()
-          local nls = require('null-ls')
-          local sources = {
-            -- nls.builtins.formatting.autopep8,
-            nls.builtins.diagnostics.flake8,
-            nls.builtins.diagnostics.semgrep,
-            -- nls.builtins.diagnostics.mypy.with({ prefer_local = true }),
-            nls.builtins.code_actions.refactoring,
-            nls.builtins.diagnostics.hadolint,
-            nls.builtins.diagnostics.shellcheck,
-            nls.builtins.formatting.isort,
-            nls.builtins.diagnostics.vale.with({ filetypes = { "vimwiki", "markdown", "tex", "asciidoc" } })
-          }
-          nls.setup({
-            sources = sources,
-            debounce = 150,
-            debug = false
-          })
-        end }
-      use { "ray-x/lsp_signature.nvim", }
-      use { "rmagatti/goto-preview",
+        end },
+     { "nvimtools/none-ls.nvim",
+      dependencies = {
+        "gbprod/none-ls-shellcheck.nvim",
+      },
+      config = function()
+        local nls = require('null-ls')
+        nls.register(require('none-ls-shellcheck.diagnostics'))
+        nls.register(require('none-ls-shellcheck.code_actions'))
+        local sources = {
+          nls.builtins.diagnostics.semgrep,
+          nls.builtins.diagnostics.mypy.with({ prefer_local = true }),
+          nls.builtins.code_actions.refactoring,
+          nls.builtins.diagnostics.hadolint,
+          nls.builtins.formatting.isort,
+          nls.builtins.diagnostics.vale.with({ filetypes = { "vimwiki", "markdown", "tex", "asciidoc" } })
+        }
+        nls.setup({
+          sources = sources,
+          debounce = 150,
+          debug = false
+        })
+      end },
+     { "ray-x/lsp_signature.nvim", },
+     { "rmagatti/goto-preview",
         config = function()
           require('goto-preview').setup {
             default_mappings = true,
             debug = false
           }
         end
-      }
-      use { "kosayoda/nvim-lightbulb",
+      },
+     { "kosayoda/nvim-lightbulb",
         config = function()
           vim.cmd [[autocmd CursorHold,CursorHoldI * lua require'nvim-lightbulb'.update_lightbulb()]]
-        end }
-      use { "https://git.sr.ht/~whynothugo/lsp_lines.nvim",
-        config = function()
-          require("lsp_lines").setup()
-        end,
-      }
-      use { "neovim/nvim-lspconfig",
-        requires = {
+        end },
+      -- use { "https://git.sr.ht/~whynothugo/lsp_lines.nvim",
+      --   config = function()
+      --     require("lsp_lines").setup()
+      --   end,
+      -- }
+     { "neovim/nvim-lspconfig",
+        dependencies = {
           { "ray-x/lsp_signature.nvim" },
           { "kosayoda/nvim-lightbulb" },
         },
@@ -434,17 +373,43 @@ return require("packer").startup(
           -- local capabilities = lsp_status.capabilities
           local capabilities = vim.lsp.protocol.make_client_capabilities()
           local capabilities = require 'cmp_nvim_lsp'.default_capabilities(capabilities)
+          capabilities.textDocument.foldingRange = {
+            dynamicRegistration = false,
+            lineFoldingOnly = true
+          }
 
-          -- disable virtual text
-          vim.diagnostic.config({
-            virtual_text = false,
-          })
+          -- codelens refresh func {{{
+          local function setup_codelens_refresh(client, bufnr)
+            local status_ok, codelens_supported = pcall(function()
+                return client.supports_method("textDocument/codeLens")
+            end)
+            if not status_ok or not codelens_supported then
+                return
+            end
+            local group = "lsp_code_lens_refresh"
+            local cl_events = { "BufEnter", "InsertLeave" }
+            local ok, cl_autocmds = pcall(vim.api.nvim_get_autocmds, {
+                group = group,
+                buffer = bufnr,
+                event = cl_events,
+            })
+            if ok and #cl_autocmds > 0 then
+                return
+            end
+            vim.api.nvim_create_augroup(group, { clear = false })
+            vim.api.nvim_create_autocmd(cl_events, {
+                group = group,
+                buffer = bufnr,
+                callback = vim.lsp.codelens.refresh,
+            })
+          end
 
+          -- }}}
           -- Use an on_attach function to only map the following keys
           -- after the language server attaches to the current buffer
           local on_attach = function(client, bufnr)
             -- define signs {{{
-            local signs = { Error = " ", Warn = " ", Hint = " ", Info = " " }
+            local signs = { Error = "⚠ ", Warn = " ", Hint = "¿ ", Info = " " }
             for type, icon in pairs(signs) do
               local hl = "DiagnosticSign" .. type
               vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
@@ -471,8 +436,9 @@ return require("packer").startup(
 
             local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
 
-            vim.api.nvim_command(
-              "autocmd BufEnter,CursorHold,InsertLeave <buffer> lua vim.lsp.codelens.refresh()")
+            setup_codelens_refresh(client, bufnr)
+            -- vim.api.nvim_command(
+            --   "autocmd BufEnter,CursorHold,InsertLeave <buffer> lua vim.lsp.codelens.refresh()")
             --Enable completion triggered by <c-x><c-o>
             -- buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
 
@@ -486,7 +452,7 @@ return require("packer").startup(
             -- buf_set_keymap('n', '<space>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>',      opts)
   
             -- disable/enable error lines
-            buf_set_keymap('n', '<space>e', '<cmd>lua require"lsp_lines".toggle()<CR>', opts)
+            -- buf_set_keymap('n', '<space>e', '<cmd>lua require"lsp_lines".toggle()<CR>', opts)
 
             -- See `:help vim.lsp.*` for documentation on any of the below functions
             buf_set_keymap('n', 'gD', '<Cmd>lua vim.lsp.buf.declaration()<CR>', opts)
@@ -527,8 +493,8 @@ return require("packer").startup(
           -- Use a loop to conveniently call 'setup' on multiple servers and
           -- map buffer local keybindings when the language server attaches
           local servers = { "rust_analyzer", "yamlls", "ccls", "jsonls", "tsserver", 'terraformls',
-            "luau_lsp", "pyright" }
-          for _, lsp in ipairs(servers) do
+            "luau_lsp", "pyright", "bashls", "ruff_lsp" }
+         for _, lsp in ipairs(servers) do
             if lsp == "jsonls" then
               capabilities.textDocument.completion.completionItem.snippetSupport = true
             else
@@ -643,14 +609,20 @@ return require("packer").startup(
           --       },
           --     },
           --   }
+          -- disable virtual text {
+          vim.diagnostic.config({
+            virtual_text = false,
+          })
+          -- }
         end
-      }
-      use { "RishabhRD/popfix" }
-      use({
-        'weilbith/nvim-code-action-menu',
-        cmd = 'CodeActionMenu',
-      })
-      use { "onsails/lspkind-nvim",
+      },
+     { "RishabhRD/popfix" },
+     { "aznhe21/actions-preview.nvim",
+        config = function()
+          vim.keymap.set({ "v", "n" }, "<leader>ca", require("actions-preview").code_actions)
+        end,
+      },
+     { "onsails/lspkind-nvim",
         config = function()
           require('lspkind').init({
             symbol_map = {
@@ -662,9 +634,9 @@ return require("packer").startup(
             }
           })
         end
-      }
-      use { "RishabhRD/nvim-lsputils",
-        requires = { { "RishabhRD/popfix" } },
+      },
+     { "RishabhRD/nvim-lsputils",
+        dependencies = { { "RishabhRD/popfix" } },
         config = function()
           local lsputil_ca = require('lsputil.codeAction')
           local lsputil_loc = require('lsputil.locations')
@@ -677,9 +649,9 @@ return require("packer").startup(
           vim.lsp.handlers['textDocument/implementation'] = lsputil_loc.implementation_handler
           vim.lsp.handlers['textDocument/documentSymbol'] = lsputil_sym.document_handler
           vim.lsp.handlers['workspace/symbol'] = lsputil_sym.workspace_handler
-        end }
-      use { "SmiteshP/nvim-navbuddy",
-        requires = {
+        end },
+     { "SmiteshP/nvim-navbuddy",
+        dependencies = {
           "neovim/nvim-lspconfig",
           "SmiteshP/nvim-navic",
           "MunifTanjim/nui.nvim"
@@ -687,12 +659,12 @@ return require("packer").startup(
         config = function()
           require 'nvim-navbuddy'.setup {}
         end
-      }
+      },
       -- }
 
       -- debug {
-      use { "theHamsta/nvim-dap-virtual-text" }
-      use { "Pocco81/DAPInstall.nvim",
+     { "theHamsta/nvim-dap-virtual-text" },
+     { "Pocco81/DAPInstall.nvim",
         branch = "dev",
         config = function()
           local dap_install = require("dap-install")
@@ -745,8 +717,8 @@ return require("packer").startup(
           -- for _, debugger in ipairs(dbg_list) do
           --   dap_install.config(debugger)
           -- end
-        end }
-      use { "mfussenegger/nvim-dap",
+        end },
+     { "mfussenegger/nvim-dap",
         config = function()
           local dap = require('dap')
           dap.adapters.lldb = {
@@ -769,13 +741,17 @@ return require("packer").startup(
             },
           }
         end
-      }
-      use { "rcarriga/nvim-dap-ui",
-        requires = {
+      },
+     { "rcarriga/nvim-dap-ui",
+        dependencies = {
           "mfussenegger/nvim-dap",
-          "folke/neodev.nvim"
+          "folke/neodev.nvim",
+          "nvim-neotest/nvim-nio"
         },
         config = function()
+          require("neodev").setup( {
+            library = { plugins = { "nvim-dap-ui" }, types = true }
+          })
           require("dapui").setup({
             icons = {
               expanded = "-",
@@ -816,14 +792,14 @@ return require("packer").startup(
             }
           })
         end
-      }
+      },
       -- use { "rcarriga/vim-ultest",
-      --       requires = {"vim-test/vim-test"},
-      --       run = ":UpdateRemotePlugins" }
+      --       dependencies = {"vim-test/vim-test"},
+      --       build = ":UpdateRemotePlugins" }
       -- }
 
       -- treesitter {
-      use { "nvim-treesitter/nvim-treesitter",
+     { "nvim-treesitter/nvim-treesitter",
         config = function()
           require 'nvim-treesitter.configs'.setup {
             ensure_installed = "all",
@@ -847,78 +823,96 @@ return require("packer").startup(
             rainbow = { enable = true }
           }
         end
-      }
-      use { "SmiteshP/nvim-navic",
-        requires = "nvim-treesitter/nvim-treesitter",
+      },
+     { "SmiteshP/nvim-navic",
+        dependencies = "nvim-treesitter/nvim-treesitter",
         config = function()
           require 'nvim-navic'.setup {}
         end
-      }
+      },
       -- Just {
-      use {
+     {
         "IndianBoy42/tree-sitter-just",
         config = function()
-          require("nvim-treesitter.parsers").get_parser_configs().just = {
-            install_info = {
-              url = "https://github.com/IndianBoy42/tree-sitter-just", -- local path or git repo
-              files = { "src/parser.c", "src/scanner.cc" },
-              branch = "main",
-              use_makefile = true -- this may be necessary on MacOS (try if you see compiler errors)
-            },
-            maintainers = { "@IndianBoy42" },
-          }
+          require('tree-sitter-just').setup({})
         end
-      }
+      },
       -- }
       -- }
 
       -- completion {
-      use({
-        "jackMort/ChatGPT.nvim",
-        config = function()
-          require("chatgpt").setup({
-            -- optional configuration
-          })
-        end,
-        requires = {
-          "MunifTanjim/nui.nvim",
-          "nvim-lua/plenary.nvim",
-          "nvim-telescope/telescope.nvim"
-        }
-      })
-      use { "MunifTanjim/nui.nvim" }
-      use { "honza/vim-snippets" }
-      use { "SirVer/ultisnips", config = function()
-        vim.g.UltiSnipsExpandTrigger = '<Plug>(ultisnips_expand)'
-        vim.g.UltiSnipsJumpForwardTrigger = '<Plug>(ultisnips_jump_forward)'
-        vim.g.UltiSnipsJumpBackwardTrigger = '<Plug>(ultisnips_jump_backward)'
-        vim.g.UltiSnipsListSnippets = '<c-x><c-s>'
-        vim.g.UltiSnipsRemoveSelectModeMappings = 0
-      end }
-      use { 'hrsh7th/cmp-nvim-lsp' }
-      use { 'hrsh7th/cmp-buffer' }
-      use { 'hrsh7th/cmp-path' }
-      use { 'hrsh7th/cmp-cmdline' }
-      use { 'quangnguyen30192/cmp-nvim-ultisnips' }
-      use { "zbirenbaum/copilot.lua",
+     { "CopilotC-Nvim/CopilotChat.nvim",
+       opts = {
+         show_help = "yes", -- Show help text for CopilotChatInPlace, default: yes
+         debug = false, -- Enable or disable debug mode, the log file will be in ~/.local/state/nvim/CopilotChat.nvim.log
+         disable_extra_info = 'no', -- Disable extra information (e.g: system prompt) in the response.
+         -- proxy = "socks5://127.0.0.1:3000", -- Proxies requests via https or socks.
+       },
+       build = function()
+         vim.notify("Please update the remote plugins by running ':UpdateRemotePlugins', then restart Neovim.")
+       end,
+       event = "VeryLazy",
+       keys = {
+         { "<leader>cce", "<cmd>CopilotChatExplain<cr>", desc = "CopilotChat - Explain code" },
+         { "<leader>cct", "<cmd>CopilotChatTests<cr>", desc = "CopilotChat - Generate tests" },
+         {
+           "<leader>ccv",
+           ":CopilotChatVisual",
+           mode = "x",
+           desc = "CopilotChat - Open in vertical split",
+         },
+         {
+           "<leader>ccx",
+           ":CopilotChatInPlace<cr>",
+           mode = "x",
+           desc = "CopilotChat - Run in-place code",
+         },
+       },
+     },
+     { "MunifTanjim/nui.nvim" },
+     { "honza/vim-snippets" },
+     -- { "SirVer/ultisnips", 
+     --  config = function()
+     --    vim.g.UltiSnipsExpandTrigger = '<Plug>(ultisnips_expand)'
+     --    vim.g.UltiSnipsJumpForwardTrigger = '<Plug>(ultisnips_jump_forward)'
+     --    vim.g.UltiSnipsJumpBackwardTrigger = '<Plug>(ultisnips_jump_backward)'
+     --    vim.g.UltiSnipsListSnippets = '<c-x><c-s>'
+     --    vim.g.UltiSnipsRemoveSelectModeMappings = 0
+     --  end },
+     { "L3MON4D3/LuaSnip",
+      dependencies = { "rafamadriz/friendly-snippets",
+                       'saadparwaiz1/cmp_luasnip' },
+       run = "make install_jsregexp"
+     },
+     { 'hrsh7th/cmp-nvim-lsp' },
+     { 'hrsh7th/cmp-buffer' },
+     { 'hrsh7th/cmp-path' },
+     { 'hrsh7th/cmp-cmdline' },
+     -- { 'quangnguyen30192/cmp-nvim-ultisnips' },
+     { "zbirenbaum/copilot.lua",
         config = function()
           require 'copilot'.setup {
             suggestion = { enabled = false },
-            panel = { enabled = false },
           }
         end
-      }
-      use { "zbirenbaum/copilot-cmp",
-        after = { "copilot.lua" },
-        requires = { "zbirenbaum/copilot.lua" },
+      },
+     { "zbirenbaum/copilot-cmp",
+        dependencies = { "zbirenbaum/copilot.lua", "copilot.lua" },
         config = function()
           require("copilot_cmp").setup()
         end
-      }
-      use { 'hrsh7th/nvim-cmp', config = function()
+      },
+     { 'hrsh7th/nvim-cmp', config = function()
         local t = function(str)
           return vim.api.nvim_replace_termcodes(str, true, true, true)
         end
+        local has_words_before = function()
+          unpack = unpack or table.unpack
+          local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+          return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
+        end
+
+        local luasnip = require("luasnip")
         local cmp = require('cmp')
         local lspkind = require('lspkind')
         cmp.setup {
@@ -952,56 +946,29 @@ return require("packer").startup(
             end,
           },
           mapping = {
-            ["<Tab>"] = cmp.mapping({
-              c = function()
-                if cmp.visible() then
-                  cmp.select_next_item({ behavior = cmp.SelectBehavior.Insert })
-                else
-                  cmp.complete()
-                end
-              end,
-              i = function(fallback)
-                if cmp.visible() then
-                  cmp.select_next_item({ behavior = cmp.SelectBehavior.Insert })
-                elseif vim.fn["UltiSnips#CanJumpForwards"]() == 1 then
-                  vim.api.nvim_feedkeys(t("<Plug>(ultisnips_jump_forward)"), 'm', true)
-                else
-                  fallback()
-                end
-              end,
-              s = function(fallback)
-                if vim.fn["UltiSnips#CanJumpForwards"]() == 1 then
-                  vim.api.nvim_feedkeys(t("<Plug>(ultisnips_jump_forward)"), 'm', true)
-                else
-                  fallback()
-                end
+            ["<Tab>"] = cmp.mapping(function(fallback)
+              if cmp.visible() then
+                cmp.select_next_item()
+              -- You could replace the expand_or_jumpable() calls with expand_or_locally_jumpable() 
+              -- that way you will only jump inside the snippet region
+              elseif luasnip.expand_or_jumpable() then
+                luasnip.expand_or_jump()
+              elseif has_words_before() then
+                cmp.complete()
+              else
+                fallback()
               end
-            }),
-            ["<S-Tab>"] = cmp.mapping({
-              c = function()
-                if cmp.visible() then
-                  cmp.select_prev_item({ behavior = cmp.SelectBehavior.Insert })
-                else
-                  cmp.complete()
-                end
-              end,
-              i = function(fallback)
-                if cmp.visible() then
-                  cmp.select_prev_item({ behavior = cmp.SelectBehavior.Insert })
-                elseif vim.fn["UltiSnips#CanJumpBackwards"]() == 1 then
-                  return vim.api.nvim_feedkeys(t("<Plug>(ultisnips_jump_backward)"), 'm', true)
-                else
-                  fallback()
-                end
-              end,
-              s = function(fallback)
-                if vim.fn["UltiSnips#CanJumpBackwards"]() == 1 then
-                  return vim.api.nvim_feedkeys(t("<Plug>(ultisnips_jump_backward)"), 'm', true)
-                else
-                  fallback()
-                end
+            end, { "i", "s" }),
+
+            ["<S-Tab>"] = cmp.mapping(function(fallback)
+              if cmp.visible() then
+                cmp.select_prev_item()
+              elseif luasnip.jumpable(-1) then
+                luasnip.jump(-1)
+              else
+                fallback()
               end
-            }),
+            end, { "i", "s" }),
             ['<Down>'] = cmp.mapping(cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Select }), { 'i' }),
             ['<Up>'] = cmp.mapping(cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Select }), { 'i' }),
             ['<C-n>'] = cmp.mapping({
@@ -1071,9 +1038,9 @@ return require("packer").startup(
           })
         })
       end
-      }
-      use { "ThePrimeagen/refactoring.nvim",
-        requires = {
+      },
+     { "ThePrimeagen/refactoring.nvim",
+        dependencies = {
           { "nvim-lua/plenary.nvim" },
           { "nvim-treesitter/nvim-treesitter" }
         },
@@ -1101,46 +1068,25 @@ return require("packer").startup(
           vim.api.nvim_set_keymap("v", "<leader>ri", [[ <Esc><Cmd>lua require('refactoring').refactor('Inline Variable')<CR>]], {noremap = true, silent = true, expr = false})
 
           -- Extract block doesn't need visual mode
-          vim.api.nvim_set_keymap("n", "<leader>rb", [[ <Cmd>lua require('refactoring').refactor('Extract Block')<CR>]], {noremap = true, silent = true, expr = false})
-          vim.api.nvim_set_keymap("n", "<leader>rbf", [[ <Cmd>lua require('refactoring').refactor('Extract Block To File')<CR>]], {noremap = true, silent = true, expr = false})
+          vim.api.nvim_set_keymap("n", "<leader>rebb", [[ <Cmd>lua require('refactoring').refactor('Extract Block')<CR>]], {noremap = true, silent = true, expr = false})
+          vim.api.nvim_set_keymap("n", "<leader>rebf", [[ <Cmd>lua require('refactoring').refactor('Extract Block To File')<CR>]], {noremap = true, silent = true, expr = false})
 
           -- Inline variable can also pick up the identifier currently under the cursor without visual mode
           vim.api.nvim_set_keymap("n", "<leader>ri", [[ <Cmd>lua require('refactoring').refactor('Inline Variable')<CR>]], {noremap = true, silent = true, expr = false})
         end
 
-      }
+      },
       -- }
 
       -- wiki {
-      use { "nvim-neorg/neorg",
-        run = ":Neorg sync-parsers", -- This is the important bit!
-        config = function()
-          require("neorg").setup {
-            load = {
-              ["core.defaults"] = {},
-              ["core.dirman"] = {
-                config = {
-                  workspaces = {
-                    proj = "~/notes/projects",
-                    glob = "~/notes/globa",
-                  }
-                }
-              },
-              ["core.concealer"] = {},
-              ["core.completion"] = { config = { engine = 'nvim-cmp' } },
-            }
-          }
-        end,
-      }
       -- }
 
       -- git {
-      use {
-        "sindrets/diffview.nvim",
-        requires = 'nvim-lua/plenary.nvim'
-      }
-      use { 'NeogitOrg/neogit',
-        requires = {
+     { "sindrets/diffview.nvim",
+        dependencies = 'nvim-lua/plenary.nvim'
+      },
+     { 'NeogitOrg/neogit',
+        dependencies = {
           'nvim-lua/plenary.nvim',
           'sindrets/diffview.nvim'
         },
@@ -1149,17 +1095,17 @@ return require("packer").startup(
           local opts = { noremap = true, silent = true }
           vim.api.nvim_set_keymap("n", "<Leader>gn", "<Cmd>Neogit<CR>", opts)
         end
-      }
+      },
       -- use { 'pwntester/octo.nvim', config = function()
       --   require "octo".setup()
       -- end }
       -- use {'tpope/vim-fugitive'}
-      use { 'junegunn/gv.vim' }
-      use { 'ThePrimeagen/git-worktree.nvim',
+     { 'junegunn/gv.vim' },
+     { 'ThePrimeagen/git-worktree.nvim',
         config = function()
           require("git-worktree").setup {}
-        end }
-      use { "lewis6991/gitsigns.nvim",
+        end },
+     { "lewis6991/gitsigns.nvim",
         config = function()
           local on_attach = function(bufnr)
             local opts = { noremap = true, silent = true }
@@ -1170,40 +1116,32 @@ return require("packer").startup(
             on_attach = on_attach
           }
         end
-      }
+      },
       -- }
 
       -- Languages {
       -- Rust {
-      use { "simrat39/rust-tools.nvim",
+     { "simrat39/rust-tools.nvim",
         config = function() require 'rust-tools'.setup {} end
-      }
+      },
       -- }
 
-      -- Clojure {
-      use { "Olical/conjure",
-        tag = "v4.22.1",
-        ft = "clojure",
-        config = function()
-          vim.api.nvim_set_var("conjure#mapping#doc_word", false)
-        end
-      }
-      use { "eraserhd/parinfer-rust",
-        run = "cargo build --release",
+     { "eraserhd/parinfer-rust",
+        build = "cargo build --release",
         ft = { "clojure", "fennel" }
-      }
+      },
       -- }
 
       -- Golang {
       -- use {"fatih/vim-go",
       --      ft = "go"}
-      use { 'ray-x/go.nvim',
-        requires = { 'ray-x/guihua.lua' },
+     { 'ray-x/go.nvim',
+        dependencies = { 'ray-x/guihua.lua' },
         config = function()
           require 'go'.setup {}
         end
-      }
-      use { 'leoluz/nvim-dap-go',
+      },
+     { 'leoluz/nvim-dap-go',
         config = function()
           require 'dap-go'.setup {
             dap_configurations = {
@@ -1225,32 +1163,37 @@ return require("packer").startup(
             }
           }
         end
-      }
+      },
       -- }
       -- Python {
       -- use { 'tmhedberg/SimpylFold' }
       -- }
       -- Markdown {
-      use({
+    {
         "iamcco/markdown-preview.nvim",
-        run = "cd app && npm install",
-        setup = function() vim.g.mkdp_filetypes = { "markdown" } end,
+        build = "cd app && npm install",
+        init = function() vim.g.mkdp_filetypes = { "markdown" } end,
         ft = { "markdown" },
-      })
-      -- }
-      -- }
-
-      -- Database {
-      use { "tpope/vim-dadbod" }
-      -- }
-    end,
-    config = {
-      display = {
-        border = { "┌", "─", "┐", "│", "┘", "─", "└", "│" }
       },
-      max_jobs = 8,
-      preview_updates = true
-    }
+      -- }
+      -- Database {
+     { "tpope/vim-dadbod" },
+     { "kristijanhusak/vim-dadbod-ui", 
+        config = function()
+          vim.g.db_ui_use_nerd_fonts = 1
+        end
+      },
+     { "kristijanhusak/vim-dadbod-completion",
+        config = function ()
+          vim.api.nvim_create_autocmd("FileType",
+            {
+              pattern= {"sql" ,"mysql","plsql"},
+              command=[[lua require('cmp').setup.buffer({ sources = {{ name = 'vim-dadbod-completion' }} })]]
+            }
+          )
+        end}
+      -- }
+    -- }
   }
 )
 

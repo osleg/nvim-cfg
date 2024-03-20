@@ -140,8 +140,8 @@ so $HOME/.config/nvim/bindings/bindings.vim
 " }}}"
 
 " CodeActionMenu {{{
-  nnoremap <silent> <leader>ca :CodeActionMenu<CR>
-  vnoremap <silent> <leader>ca :CodeActionMenu<CR>
+  nnoremap <silent> <leader>ca :lua require('actions-preview').code_actions()<CR>
+  vnoremap <silent> <leader>ca :lua require('actions-preview').code_actions()<CR>
 " }}}
 
 " Theme {{{
