@@ -67,7 +67,7 @@
     set cmdheight=2                                 " Little bit more space for messages
     set updatetime=300                              " faster CursorHold action
     au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
-    set guifont=Hack\ Nerd\ Font\ Mono:11
+    set guifont=Hack\ Nerd\ Font\ Mono:h9
    "set jumpoptions=stack
   " }}}
 
@@ -164,7 +164,7 @@ so $HOME/.config/nvim/bindings/bindings.vim
 " }}}
 
 " Go {{{
-  autocmd BufWritePre *.go :silent! lua require('go.format').gofmt() 
+  " autocmd BufWritePre *.go :silent! lua require('go.format').gofmt() 
   autocmd BufWritePre (InsertLeave?) <buffer> lua vim.lsp.buf.formatting_sync(nil,500)
   let g:go_code_completion_enabled = 0
 " }}}

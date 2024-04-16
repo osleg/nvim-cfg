@@ -14,38 +14,28 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup(
   {
     -- Vim stuff {
-    -- use { "folke/noice.nvim",
-    --   config = function()
-    --     require("noice").setup({
-    --       lsp = {
-    --         -- override markdown rendering so that **cmp** and other plugins use **Treesitter**
-    --         override = {
-    --           ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
-    --           ["vim.lsp.util.stylize_markdown"] = true,
-    --           ["cmp.entry.get_documentation"] = true,
-    --         },
-    --       },
-    --       -- you can enable a preset for easier configuration
-    --       presets = {
-    --         bottom_search = true,         -- use a classic bottom cmdline for search
-    --         command_palette = true,       -- position the cmdline and popupmenu together
-    --         long_message_to_split = true, -- long messages will be sent to a split
-    --         inc_rename = false,           -- enables an input dialog for inc-rename.nvim
-    --         lsp_doc_border = false,       -- add a border to hover docs and signature help
-    --       },
-    --     })
-    --   end,
-    --   dependencies = {
-    --     -- if you lazy-load any plugin below, make sure to add proper `module="..."` entries
-    --     "MunifTanjim/nui.nvim",
-    --     -- OPTIONAL:
-    --     --   `nvim-notify` is only needed, if you want to use the notification view.
-    --     --   If not available, we use `mini` as the fallback
-    --     "rcarriga/nvim-notify",
-    --   }
-    -- }
     { "shortcuts/no-neck-pain.nvim" },
     'eandrju/cellular-automaton.nvim',
+    { 'glacambre/firenvim',
+      lazy = not vim.g.started_by_firenvim,
+      config = function ()
+        vim.g.firenvim_config = {
+          globalSettings = { alt = "all" },
+          localSettings = {
+              [".*"] = {
+                  cmdline  = "neovim",
+                  content  = "text",
+                  priority = 0,
+                  selector = "textarea",
+                  takeover = "never"
+                }
+            }
+        }
+      end,
+      build = function()
+          vim.fn["firenvim#install"](0)
+      end
+    },
     "nvim-lua/plenary.nvim",
     "junegunn/vim-easy-align",
     { "tpope/vim-rsi" },
@@ -99,6 +89,8 @@ require("lazy").setup(
         })
       end
     },
+    -- { "stevearc/oil.nvim",
+    --   opts = {} },
     { "nvim-tree/nvim-tree.lua",
       version = "*",
       lazy = false,
@@ -211,6 +203,10 @@ require("lazy").setup(
       end
     },
     "rcarriga/nvim-notify",
+    -- { "nvim-zh/colorful-winsep.nvim",
+    --   config = true,
+    --   event = { "WinNew" },
+    -- },
     -- }
 
     -- Telescope {
@@ -341,7 +337,7 @@ require("lazy").setup(
         nls.register(require('none-ls-shellcheck.diagnostics'))
         nls.register(require('none-ls-shellcheck.code_actions'))
         local sources = {
-          nls.builtins.diagnostics.semgrep,
+          -- nls.builtins.diagnostics.semgrep,
           nls.builtins.diagnostics.mypy.with({ prefer_local = true }),
           nls.builtins.code_actions.refactoring,
           nls.builtins.diagnostics.hadolint,
@@ -392,7 +388,7 @@ require("lazy").setup(
           lineFoldingOnly = true
         }
 
-        -- codelens refresh func {{{
+        -- codelens refresh func {
         local function setup_codelens_refresh(client, bufnr)
           local status_ok, codelens_supported = pcall(function()
             return client.supports_method("textDocument/codeLens")
@@ -418,19 +414,19 @@ require("lazy").setup(
           })
         end
 
-        -- }}}
+        -- }
         -- Use an on_attach function to only map the following keys
         -- after the language server attaches to the current buffer
         local on_attach = function(client, bufnr)
-          -- define signs {{{
+          -- define signs {
           local signs = { Error = "⚠ ", Warn = " ", Hint = "¿ ", Info = " " }
           for type, icon in pairs(signs) do
             local hl = "DiagnosticSign" .. type
             vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
           end
-          -- }}}
+          -- }
 
-          -- Show diagnostic under cursor {{{
+          -- Show diagnostic under cursor {
           -- vim.api.nvim_create_autocmd("CursorHold", {
           --   buffer = bufnr,
           --   callback = function()
@@ -445,7 +441,7 @@ require("lazy").setup(
           --     vim.diagnostic.open_float(nil, opts)
           --   end
           -- })
-          -- }}}
+          -- }
           local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
 
           local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
@@ -501,8 +497,10 @@ require("lazy").setup(
           -- }
 
           require 'lsp_signature'.on_attach(client, bufnr)
-          require 'nvim-navic'.attach(client, bufnr)
-          require 'nvim-navbuddy'.attach(client, bufnr)
+          if client.server_capabilities.documentSymbolProvider then
+            require 'nvim-navic'.attach(client, bufnr)
+            require 'nvim-navbuddy'.attach(client, bufnr)
+          end
           -- lsp_spinner.on_attach(client, bufnr)
           -- lsp_status.on_attach(client, bufnr)
         end
@@ -512,7 +510,7 @@ require("lazy").setup(
         local servers = { "rust_analyzer", "yamlls", "ccls", "jsonls", "tsserver", 'terraformls',
           "luau_lsp", "pyright", "bashls", "ruff_lsp", "marksman" }
         for _, lsp in ipairs(servers) do
-          if lsp == "jsonls" then
+          if lsp == "jsonls" or lsp == "luau_lsp" then
             capabilities.textDocument.completion.completionItem.snippetSupport = true
           else
             capabilities.textDocument.completion.completionItem.snippetSupport = false
@@ -867,6 +865,7 @@ require("lazy").setup(
 
     -- completion {
     { "CopilotC-Nvim/CopilotChat.nvim",
+      branch = "canary",
       opts = {
         show_help = "yes",          -- Show help text for CopilotChatInPlace, default: yes
         debug = false,              -- Enable or disable debug mode, the log file will be in ~/.local/state/nvim/CopilotChat.nvim.log
@@ -908,7 +907,7 @@ require("lazy").setup(
       dependencies = { 
         "rafamadriz/friendly-snippets",
         'saadparwaiz1/cmp_luasnip' },
-      run = "make install_jsregexp",
+      build = "make install_jsregexp",
       config = function()
         require("luasnip.loaders.from_snipmate").lazy_load()
         require("luasnip.loaders.from_vscode").lazy_load()
@@ -947,6 +946,11 @@ require("lazy").setup(
         local cmp = require('cmp')
         local lspkind = require('lspkind')
         cmp.setup {
+          snippet = {
+            expand = function(args)
+              require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
+            end,
+          },
           formatting = {
             format = function(entry, vim_item)
               if vim.tbl_contains({ 'path' }, entry.source.name) then
@@ -965,8 +969,8 @@ require("lazy").setup(
             keyword_length = 0
           },
           sources = cmp.config.sources({
-            { name = 'luasnip' },
             { name = 'copilot' },
+            { name = 'luasnip' },
             { name = 'nvim_lsp' },
             { name = 'buffer' },
             { name = 'path' },
@@ -1169,7 +1173,9 @@ require("lazy").setup(
       config = function() require 'rust-tools'.setup {} end
     },
     -- }
-
+    -- Jenkins {
+    {'ckipp01/nvim-jenkinsfile-linter'},
+    -- }
     -- Golang {
     -- use {"fatih/vim-go",
     --      ft = "go"}
