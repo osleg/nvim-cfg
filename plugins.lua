@@ -69,7 +69,8 @@ require("lazy").setup(
         require('nvim_comment').setup()
       end
     },
-    "HiPhish/nvim-ts-rainbow2",
+    -- "HiPhish/nvim-ts-rainbow2",
+    'HiPhish/rainbow-delimiters.nvim',
     -- TODO: configure and set bindings through mapper
     { "numtostr/FTerm.nvim",
       config = function()
@@ -96,9 +97,11 @@ require("lazy").setup(
       lazy = false,
       dependencies = {
         "nvim-tree/nvim-web-devicons",
+        'b0o/nvim-tree-preview.lua',
       },
       config = function()
         require("nvim-tree").setup {}
+        require("nvim-tree-preview").setup {}
       end,
     },
     'famiu/bufdelete.nvim',
@@ -507,7 +510,7 @@ require("lazy").setup(
 
         -- Use a loop to conveniently call 'setup' on multiple servers and
         -- map buffer local keybindings when the language server attaches
-        local servers = { "rust_analyzer", "yamlls", "ccls", "jsonls", "tsserver", 'terraformls',
+        local servers = { "rust_analyzer", "yamlls", "jsonls", "tsserver", 'terraformls',
           "luau_lsp", "pyright", "bashls", "ruff_lsp", "marksman" }
         for _, lsp in ipairs(servers) do
           if lsp == "jsonls" or lsp == "luau_lsp" then
@@ -523,6 +526,18 @@ require("lazy").setup(
             }
           }
         end
+        nvim_lsp['clangd'].setup {
+          on_attach = on_attach,
+          capabilities = capabilities,
+          flags = {
+            debounce_text_changes = 150,
+          },
+          cmd = {
+            "clangd",
+            "--offset-encoding=utf-16",
+            "--limit-results=0",
+          }
+        }
         -- nvim_lsp['pylsp'].setup {
         --   on_attach = on_attach,
         --   capabilities = capabilities,
@@ -552,7 +567,6 @@ require("lazy").setup(
             "-remote.debug=:0"
             -- "-rpc.trace",
           },
-
           flags = {
             allow_incremental_sync = true,
             debounce_text_changes = 500
@@ -567,14 +581,17 @@ require("lazy").setup(
                 unreachable = true
               },
               codelenses = {
-                generate = true,     -- show the `go generate` lens.
-                gc_details = true,   --  // Show a code lens toggling the display of gc's choices.
-                tidy = true          -- adding mod tidy
+                gc_details=false,
+                generate = true,
+                regenerate_cgo = true,
+                tidy = true,
+                upgrade_dependency = true,
+                vendor = true
               },
               usePlaceholders = true,
               completeUnimported = true,
               staticcheck = true,
-              matcher = "fuzzy",
+              matcher = "Fuzzy",
               diagnosticsDelay = "500ms",
               -- diagnosticsDelay = "500ms",
               -- experimentalWatchedFileDelay = "100ms",
@@ -681,70 +698,45 @@ require("lazy").setup(
 
     -- debug {
     { "theHamsta/nvim-dap-virtual-text" },
-    {
-      "Pocco81/DAPInstall.nvim",
-      branch = "dev",
+    { "williamboman/mason.nvim",
       config = function()
-        local dap_install = require("dap-install")
-        local dbg_list = require("dap-install.api.debuggers").get_installed_debuggers()
-
-        dap_install.config("python", {})
-        local dap_install = require "dap-install"
-        local dbg_list = require("dap-install.api.debuggers").get_installed_debuggers()
-
-        local overrides = {
-          python = {
-            adapters = {
-              type = "executable",
-              command = "python3",
-              args = { "-m", "debugpy.adapter" },
-            },
-            configurations = {
-              {
-                type = "python",
-                request = "launch",
-                name = "Launch file",
-                program = "${file}",
-                pythonPath = function()
-                  local venv_path = os.getenv "VIRTUAL_ENV"
-                  if venv_path then
-                    local util_sys = require "dap-install.utils.sys"
-                    if util_sys.is_windows() then
-                      return venv_path .. "\\Scripts\\python.exe"
-                    end
-                    return venv_path .. "/bin/python"
-                  end
-
-                  local cwd = vim.fn.getcwd()
-                  if vim.fn.executable(cwd .. "/venv/bin/python") == 1 then
-                    return cwd .. "/venv/bin/python"
-                  elseif vim.fn.executable(cwd .. "/.venv/bin/python") == 1 then
-                    return cwd .. "/.venv/bin/python"
-                  else
-                    return "/usr/bin/python3"
-                  end
-                end,
-              },
-            },
-          },
+        require('mason').setup {
+          highlight = {
+            enabled = true,
+            colors = {
+              red = "#ff0000",
+              green = "#00ff00",
+              blue = "#0000ff",
+              yellow = "#ffff00",
+              magenta = "#ff00ff",
+              cyan = "#00ffff",
+              white = "#ffffff",
+              black = "#000000",
+              orange = "#ff8000",
+              violet = "#8000ff",
+              pink = "#ff00ff",
+              grey = "#808080",
+              brown = "#804000",
+            }
+          }
         }
-
-        for _, debugger in ipairs(dbg_list) do
-          dap_install.config(debugger, overrides[debugger])
-        end
-        -- for _, debugger in ipairs(dbg_list) do
-        --   dap_install.config(debugger)
-        -- end
       end
     },
-    {
-      "mfussenegger/nvim-dap",
+    { "mfussenegger/nvim-dap",
       config = function()
         local dap = require('dap')
         dap.adapters.lldb = {
           type = 'executable',
-          command = '/Users/alexx/.cargo/bin/rust-lldb',   -- adjust as needed
+          command = 'lldb',   -- adjust as needed
           name = "lldb"
+        }
+        dap.adapters.codelldb = {
+          type = 'server',
+          port = "${port}",
+          executable = {
+            command = 'codelldb',
+            args = {"--port", "${port}"},
+          }
         }
         dap.configurations.rust = {
           {
@@ -760,10 +752,24 @@ require("lazy").setup(
             runInTerminal = false,
           },
         }
+        dap.configurations.cpp = {
+          {
+            name = "Launch file",
+            type = "codelldb",
+            request = "launch",
+            program = function()
+              return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
+            end,
+            MIMode = 'lldb',
+            cwd = '${workspaceFolder}/build/debug/bin',
+            stopOnEntry = false,
+            preRunCommands = {"breakpoint name configure --disable cpp_exception"},
+            externalConsole = false,
+          },
+        }
       end
     },
-    {
-      "rcarriga/nvim-dap-ui",
+    { "rcarriga/nvim-dap-ui",
       dependencies = {
         "mfussenegger/nvim-dap",
         "folke/neodev.nvim",
@@ -820,8 +826,7 @@ require("lazy").setup(
     -- }
 
     -- treesitter {
-    {
-      "nvim-treesitter/nvim-treesitter",
+    { "nvim-treesitter/nvim-treesitter",
       config = function()
         require 'nvim-treesitter.configs'.setup {
           ensure_installed = "all",
@@ -846,8 +851,7 @@ require("lazy").setup(
         }
       end
     },
-    {
-      "SmiteshP/nvim-navic",
+    { "SmiteshP/nvim-navic",
       dependencies = "nvim-treesitter/nvim-treesitter",
       config = function()
         require 'nvim-navic'.setup {}
@@ -946,12 +950,23 @@ require("lazy").setup(
         local cmp = require('cmp')
         local lspkind = require('lspkind')
         cmp.setup {
+          view = {
+            entries = { name = "custom", selection_order = 'near_cursor' }
+          },
+          window = {
+            completion = {
+              winhighlight = "Normal:Pmenu,FloatBorder:Pmenu,Search:None",
+              col_offset = -3,
+              side_padding = 0,
+            },
+          },
           snippet = {
             expand = function(args)
               require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
             end,
           },
           formatting = {
+            fields = { "kind", "abbr", "menu" },
             format = function(entry, vim_item)
               if vim.tbl_contains({ 'path' }, entry.source.name) then
                 local icon, hl_group = require('nvim-web-devicons').get_icon(entry:get_completion_item()
@@ -962,16 +977,20 @@ require("lazy").setup(
                   return vim_item
                 end
               end
-              return lspkind.cmp_format({ with_text = false })(entry, vim_item)
+              local kind = lspkind.cmp_format({ mode='symbol_text', max_width=50, with_text=true, show_labelDetail=true })(entry, vim_item)
+              local strings = vim.split(kind.kind, "%s", { trimempty = true })
+              kind.kind = " " .. (strings[1] or "") .. " "
+              kind.menu = "    (" .. (strings[2] or "") .. ")"
+              return kind
             end
           },
           completion = {
             keyword_length = 0
           },
           sources = cmp.config.sources({
-            { name = 'copilot' },
             { name = 'luasnip' },
             { name = 'nvim_lsp' },
+            { name = 'copilot', priority = 3 },
             { name = 'buffer' },
             { name = 'path' },
           }),
@@ -1124,12 +1143,10 @@ require("lazy").setup(
     -- }
 
     -- git {
-    {
-      "sindrets/diffview.nvim",
+    { "sindrets/diffview.nvim",
       dependencies = 'nvim-lua/plenary.nvim'
     },
-    {
-      'NeogitOrg/neogit',
+    { 'NeogitOrg/neogit',
       dependencies = {
         'nvim-lua/plenary.nvim',
         'sindrets/diffview.nvim'
@@ -1145,14 +1162,12 @@ require("lazy").setup(
     -- end }
     -- use {'tpope/vim-fugitive'}
     { 'junegunn/gv.vim' },
-    {
-      'ThePrimeagen/git-worktree.nvim',
+    { 'ThePrimeagen/git-worktree.nvim',
       config = function()
         require("git-worktree").setup {}
       end
     },
-    {
-      "lewis6991/gitsigns.nvim",
+    { "lewis6991/gitsigns.nvim",
       config = function()
         local on_attach = function(bufnr)
           local opts = { noremap = true, silent = true }
@@ -1167,10 +1182,38 @@ require("lazy").setup(
     -- }
 
     -- Languages {
+    -- CSV {
+    { 'cameron-wags/rainbow_csv.nvim',
+      config = function()
+        require 'rainbow_csv'.setup {}
+      end,
+      ft = {
+          'csv',
+          'tsv',
+          'csv_semicolon',
+          'csv_whitespace',
+          'csv_pipe',
+          'rfc_csv',
+          'rfc_semicolon'
+      },
+      cmd = {
+          'RainbowDelim',
+          'RainbowDelimSimple',
+          'RainbowDelimQuoted',
+          'RainbowMultiDelim'
+      }
+    },
+    -- }
     -- Rust {
-    {
-      "simrat39/rust-tools.nvim",
+    { "simrat39/rust-tools.nvim",
       config = function() require 'rust-tools'.setup {} end
+    },
+    -- }
+    -- CPP {
+    { 'Civitasv/cmake-tools.nvim',
+      config = function()
+        require('cmake-tools').setup {}
+      end
     },
     -- }
     -- Jenkins {
