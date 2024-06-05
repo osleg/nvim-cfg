@@ -157,12 +157,6 @@ so $HOME/.config/nvim/bindings/bindings.vim
   let g:UltiSnipsJumpBackwardTrigger      =  "<nop>"
 " }}}"
 
-" Trouble {{{
-  nnoremap <silent> <leader>xx :TroubleToggle document_diagnostics<CR>
-  nnoremap <silent> <leader>xw :TroubleToggle workspace_diagnostics<CR>
-  nnoremap <silent> <leader>xt :TodoTrouble<CR>
-" }}}
-
 " Go {{{
   " autocmd BufWritePre *.go :silent! lua require('go.format').gofmt() 
   autocmd BufWritePre (InsertLeave?) <buffer> lua vim.lsp.buf.formatting_sync(nil,500)

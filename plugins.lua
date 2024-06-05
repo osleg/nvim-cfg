@@ -62,6 +62,18 @@ require("lazy").setup(
       opts = {
         auto_fold = true,
         auto_preview = false,
+      },
+      keys = {
+        {
+          "<leader>xw",
+          "<cmd>Trouble diagnostics toggle focus=true<cr>",
+          desc = "Diagnostics (Trouble)",
+        },
+        {
+          "<leader>xx",
+          "<cmd>Trouble diagnostics toggle filter.buf=0 focus=true<cr>",
+          desc = "Buffer Diagnostics (Trouble)",
+        },
       }
     },
     -- "HiPhish/nvim-ts-rainbow2",
@@ -173,7 +185,7 @@ require("lazy").setup(
         vim.o.fillchars = [[eob: ,fold: ,foldopen:,foldsep: ,foldclose:]]
         vim.o.foldcolumn = '0'   -- '0' is not bad
         vim.o.foldlevel = 99     -- Using ufo provider need a large value, feel free to decrease the value
-        vim.o.foldlevelstart = 5
+        vim.o.foldlevelstart = 99
         vim.o.foldenable = true
 
         vim.keymap.set('n', 'zR', require('ufo').openAllFolds)
@@ -222,7 +234,7 @@ require("lazy").setup(
         { "nvim-telescope/telescope-dap.nvim" }
       },
       config = function()
-        local trouble = require('trouble.providers.telescope')
+        local trouble = require('trouble.sources.telescope')
         local telescope = require('telescope')
         local actions = require('telescope.actions')
         telescope.load_extension("git_worktree")
@@ -233,9 +245,9 @@ require("lazy").setup(
           defaults = {
             dynamic_preview_title = true,
             mappings = {
-              i = { ["<c-t>"] = trouble.open_with_trouble },
+              i = { ["<c-t>"] = trouble.open },
               n = {
-                ["<c-t>"] = trouble.open_with_trouble,
+                ["<c-t>"] = trouble.open,
                 ["<c-d>"] = actions.delete_buffer,
               },
             },
@@ -315,15 +327,16 @@ require("lazy").setup(
         require("fidget").setup {}
       end
     },
-    { "simrat39/symbols-outline.nvim",
+    { "stevearc/aerial.nvim",
       config = function()
-        require 'symbols-outline'.setup {
-          relative_width = false,
-          width = 25,
-          auto_close = true,
-          autofold_depth = 1,
-        }
-        vim.api.nvim_set_keymap("n", "<Leader>bt", ":SymbolsOutline<CR>", {})
+        require('aerial').setup({
+          on_attach = function(bufnr)
+            -- Jump forwards/backwards with '{' and '}'
+            vim.keymap.set("n", "t{", "<cmd>AerialPrev<CR>", { buffer = bufnr })
+            vim.keymap.set("n", "t}", "<cmd>AerialNext<CR>", { buffer = bufnr })
+          end,
+        })
+        vim.keymap.set("n", "<Leader>bt", "<cmd>AerialToggle!<CR>", {})
       end
     },
     { "nvimtools/none-ls.nvim",
