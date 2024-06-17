@@ -104,11 +104,11 @@ require("lazy").setup(
       lazy = false,
       dependencies = {
         "nvim-tree/nvim-web-devicons",
-        'b0o/nvim-tree-preview.lua',
+        -- 'b0o/nvim-tree-preview.lua',
       },
       config = function()
         require("nvim-tree").setup {}
-        require("nvim-tree-preview").setup {}
+        -- require("nvim-tree-preview").setup {}
       end,
     },
     'famiu/bufdelete.nvim',
@@ -122,15 +122,14 @@ require("lazy").setup(
                 function()
                   return navic.get_location()
                 end,
-                cond = function()
-                  return navic.is_available()
-                end
+                cond = navic.is_available
               },
             },
           },
           winbar = {
           },
-          inactive_winbar = {}
+          inactive_winbar = {},
+          extensions = {'aerial', 'nvim-dap-ui', 'trouble', 'oil', 'mundo'}
         })
         --  sections = {
         --    lualine_a = {'mode'},
@@ -235,10 +234,12 @@ require("lazy").setup(
       },
       config = function()
         local trouble = require('trouble.sources.telescope')
+        local aerial = require('aerial')
         local telescope = require('telescope')
         local actions = require('telescope.actions')
         telescope.load_extension("git_worktree")
         telescope.load_extension("dap")
+        telescope.load_extension("aerial")
         -- telescope.load_extension("fzf_writer")
         telescope.load_extension("refactoring")
         telescope.setup {
@@ -274,6 +275,8 @@ require("lazy").setup(
         vim.api.nvim_set_keymap("n", "<Leader>bo", "<Cmd>lua require('telescope.builtin').oldfiles()<CR>",
           opts)
         vim.api.nvim_set_keymap("n", "<Leader>bg", "<Cmd>lua require('telescope.builtin').live_grep()<CR>",
+          opts)
+        vim.api.nvim_set_keymap("n", "<Leader>bt", "<Cmd>lua require('telescope').extensions.aerial.aerial()<CR>",
           opts)
         -- }
         -- Git stuff {
@@ -335,8 +338,9 @@ require("lazy").setup(
             vim.keymap.set("n", "t{", "<cmd>AerialPrev<CR>", { buffer = bufnr })
             vim.keymap.set("n", "t}", "<cmd>AerialNext<CR>", { buffer = bufnr })
           end,
+          backends = { "treesitter", "lsp", "markdown", "asciidoc", "man" },
         })
-        vim.keymap.set("n", "<Leader>bt", "<cmd>AerialToggle!<CR>", {})
+        vim.keymap.set("n", "<Leader>bT", "<cmd>AerialToggle! right<CR>", {})
       end
     },
     { "nvimtools/none-ls.nvim",
@@ -417,11 +421,16 @@ require("lazy").setup(
           if ok and #cl_autocmds > 0 then
             return
           end
+          local cb = function()
+            if vim.api.nvim_buf_is_loaded(bufnr) and vim.api.nvim_buf_is_valid(bufnr) then
+              vim.lsp.codelens.refresh({ bufnr = bufnr })
+            end
+          end
           vim.api.nvim_create_augroup(group, { clear = false })
           vim.api.nvim_create_autocmd(cl_events, {
             group = group,
             buffer = bufnr,
-            callback = vim.lsp.codelens.refresh,
+            callback = cb,
           })
         end
 
@@ -467,8 +476,6 @@ require("lazy").setup(
           buf_set_keymap('n', 'gD', '<Cmd>lua vim.lsp.buf.declaration()<CR>', opts)
           buf_set_keymap('n', '<C-]>', "<Cmd>lua vim.lsp.buf.definition(require'telescope.themes'.get_ivy { })<CR>",
             opts)
-          -- buf_set_keymap('n', 'K', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
-          buf_set_keymap('n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
           buf_set_keymap('i', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
           buf_set_keymap('n', '<space>D', '<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
           buf_set_keymap('n', '<space>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
@@ -1286,6 +1293,4 @@ require("lazy").setup(
   }
 )
 
-
-
--- vim: set sw=2 ts=2 sts=2 et tw=78 foldmarker={,} foldlevel=0 foldmethod=marker nospell:
+-- vim: set sw=2 ts=2 sts=2 et tw=78 foldmarker={,} foldlevel=1 foldmethod=marker nospell:
