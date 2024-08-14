@@ -42,7 +42,14 @@ require("lazy").setup(
     { "tpope/vim-surround" },
     "godlygeek/tabular",
     { "folke/lsp-colors.nvim", opts = {} },
-    { "folke/which-key.nvim",  opts = {} },
+    { "folke/which-key.nvim",
+        opts = {
+        preset = "modern",
+        triggers = {
+          { "<auto>", mode = "nixsoc" },
+        }
+     }
+    },
     { 'folke/twilight.nvim',   opts = {} },
     { 'folke/zen-mode.nvim',   opts = {} },
     'folke/tokyonight.nvim',
@@ -261,6 +268,11 @@ require("lazy").setup(
               -- Will probably slow down some aspects of the sorter, but can make color highlights.
               -- I will work on this more later.
               _highlighter = true,
+            },
+            aerial = {
+              show_nesting = {
+                ["_"] = true, -- This key will be the default
+              },
             }
           }
         }
@@ -380,10 +392,14 @@ require("lazy").setup(
         vim.cmd [[autocmd CursorHold,CursorHoldI * lua require'nvim-lightbulb'.update_lightbulb()]]
       end
     },
-    { "https://git.sr.ht/~whynothugo/lsp_lines.nvim",
+    { "rachartier/tiny-inline-diagnostic.nvim",
       config = function()
-        require("lsp_lines").setup()
-      end,
+        vim.diagnostic.config({
+          virtual_text = false,
+          virtual_lines = false,
+        })
+        require('tiny-inline-diagnostic').setup()
+      end
     },
     { "neovim/nvim-lspconfig",
       dependencies = {
@@ -422,8 +438,8 @@ require("lazy").setup(
             return
           end
           local cb = function()
-            if vim.api.nvim_buf_is_loaded(bufnr) and vim.api.nvim_buf_is_valid(bufnr) then
-              vim.lsp.codelens.refresh({ bufnr = bufnr })
+            if vim.api.nvim_buf_is_loaded(bufnr) then
+              vim.lsp.codelens.refresh({ bufnr = 0 })
             end
           end
           vim.api.nvim_create_augroup(group, { clear = false })
@@ -468,8 +484,6 @@ require("lazy").setup(
           -- buf_set_keymap('n', '<space>wl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', opts)
           -- buf_set_keymap('n', '<space>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>',      opts)
 
-          -- disable/enable error lines
-          -- buf_set_keymap('n', '<space>e', '<cmd>lua require"lsp_lines".toggle()<CR>', opts)
 
           -- See `:help vim.lsp.*` for documentation on any of the below functions
           buf_set_keymap('n', '<leader>ih', '<cmd>lua vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())<CR>', opts)
@@ -481,9 +495,9 @@ require("lazy").setup(
           buf_set_keymap('n', '<space>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
           -- buf_set_keymap('n', '[e', '<cmd>lua vim.diagnostic.goto_prev()<CR>', opts)
           -- buf_set_keymap('n', ']e', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
+          buf_set_keymap('n', ',d', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
           buf_set_keymap('n', ',i', '<cmd>lua vim.diagnostic.config({ virtual_text = false })<CR>', opts)
           buf_set_keymap('n', ',I', '<cmd>lua vim.diagnostic.config({ virtual_text = true })<CR>', opts)
-          buf_set_keymap('n', ',t', '<cmd>lua require("lsp_lines").toggle()<CR>', opts)
           -- buf_set_keymap('n', '<space>q', '<cmd>lua vim.diagnostic.set_loclist()<CR>', opts)
           buf_set_keymap("n", ",.", "<cmd>lua vim.lsp.buf.format()<CR>", opts)
           -- buf_set_keymap("n", "<leader>ca", "<Cmd>lua vim.lsp.buf.code_action()<CR>", opts)
@@ -1293,4 +1307,7 @@ require("lazy").setup(
   }
 )
 
--- vim: set sw=2 ts=2 sts=2 et tw=78 foldmarker={,} foldlevel=1 foldmethod=marker nospell:
+-- DIE
+vim.diagnostic.config { virtual_text = false }
+
+-- vim: set sw=2 ts=2 sts=2 et tw=78 foldmarker={,} foldmethod=marker nospell:
