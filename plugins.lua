@@ -14,26 +14,22 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup(
   {
     -- Vim stuff {
+    {'folke/tokyonight.nvim',
+      config = true
+    },
     { "shortcuts/no-neck-pain.nvim" },
     'eandrju/cellular-automaton.nvim',
     { 'glacambre/firenvim',
-      lazy = not vim.g.started_by_firenvim,
-      config = function ()
+      build = ":call firenvim#install(0)",
+      config = function()
         vim.g.firenvim_config = {
           globalSettings = { alt = "all" },
           localSettings = {
-              [".*"] = {
-                  cmdline  = "neovim",
-                  content  = "text",
-                  priority = 0,
-                  selector = "textarea",
-                  takeover = "never"
-                }
+            [".*"] = {
+              takeover = "never"
             }
+          }
         }
-      end,
-      build = function()
-          vim.fn["firenvim#install"](0)
       end
     },
     "nvim-lua/plenary.nvim",
@@ -52,7 +48,6 @@ require("lazy").setup(
     },
     { 'folke/twilight.nvim',   opts = {} },
     { 'folke/zen-mode.nvim',   opts = {} },
-    'folke/tokyonight.nvim',
     { "folke/todo-comments.nvim",
       dependencies = "nvim-lua/plenary.nvim",
       opts = {
@@ -115,6 +110,10 @@ require("lazy").setup(
       },
       config = function()
         require("nvim-tree").setup {}
+        --   git = {
+        --     enable = false,
+        --   }
+        -- }
         -- require("nvim-tree-preview").setup {}
       end,
     },
@@ -136,7 +135,7 @@ require("lazy").setup(
           winbar = {
           },
           inactive_winbar = {},
-          extensions = {'aerial', 'nvim-dap-ui', 'trouble', 'oil', 'mundo'}
+          extensions = {'aerial', 'nvim-dap-ui', 'trouble', 'mundo'}
         })
         --  sections = {
         --    lualine_a = {'mode'},
@@ -151,7 +150,11 @@ require("lazy").setup(
     },
     { "b0o/incline.nvim",
       config = function()
-        require("incline").setup()
+        require("incline").setup({
+          hide = {
+            cursorline = true,
+          }
+        })
       end,
       event = "VeryLazy"
     },
@@ -210,15 +213,16 @@ require("lazy").setup(
         require('ufo').setup({
           open_fold_hl_timeout = 150,
           enable_get_fold_virt_text = true,
-          close_fold_kinds_for_fot = { go = { 'imports', 'comment' } },
+          close_fold_kinds_for_ft = { go = { 'imports', 'comment' } },
           fold_virt_text_handler = handler,
-          provider_selector = function(bufnr, filetype, buftype)
-            return ftMap[filetype] or { 'treesitter', 'indent' }
-          end
+          -- provider_selector = function(bufnr, filetype, buftype)
+          --   return ftMap[filetype] or { 'treesitter', 'indent' }
+          -- end
         })
       end
     },
     "rcarriga/nvim-notify",
+    "AndrewRadev/linediff.vim",
     -- { "nvim-zh/colorful-winsep.nvim",
     --   config = true,
     --   event = { "WinNew" },
@@ -250,16 +254,20 @@ require("lazy").setup(
         -- telescope.load_extension("fzf_writer")
         telescope.load_extension("refactoring")
         telescope.setup {
-          defaults = {
-            dynamic_preview_title = true,
-            mappings = {
-              i = { ["<c-t>"] = trouble.open },
-              n = {
-                ["<c-t>"] = trouble.open,
-                ["<c-d>"] = actions.delete_buffer,
-              },
-            },
-          },
+          defaults = vim.tbl_extend(
+            "force",
+            require('telescope.themes').get_ivy(),
+            {
+              dynamic_preview_title = true,
+              mappings = {
+                i = { ["<c-t>"] = trouble.open },
+                n = {
+                  ["<c-t>"] = trouble.open,
+                  ["<c-d>"] = actions.delete_buffer,
+                },
+              }
+            }
+          ),
           extensions = {
             fzf_writer = {
               minimum_grep_characters = 2,
@@ -527,8 +535,17 @@ require("lazy").setup(
 
         -- Use a loop to conveniently call 'setup' on multiple servers and
         -- map buffer local keybindings when the language server attaches
-        local servers = { "rust_analyzer", "yamlls", "jsonls", "tsserver", 'terraformls',
-          "luau_lsp", "pyright", "bashls", "ruff_lsp", "marksman" }
+        local servers = { "rust_analyzer", "yamlls", "jsonls", "ts_ls", 'terraformls',
+          "luau_lsp", "pyright", "bashls", "ruff", "marksman", "vacuum" }
+
+        -- Add openapi filetypes for vacuum
+        -- Anything that matches openapi.*.ya?ml or openapi.*.json
+        vim.filetype.add {
+          pattern = {
+            ['openapi.*%.ya?ml'] = 'yaml.openapi',
+            ['openapi.*%.json'] = 'json.openapi',
+          },
+        }
         for _, lsp in ipairs(servers) do
           if lsp == "jsonls" or lsp == "luau_lsp" then
             capabilities.textDocument.completion.completionItem.snippetSupport = true
@@ -555,22 +572,6 @@ require("lazy").setup(
             "--limit-results=0",
           }
         }
-        -- nvim_lsp['pylsp'].setup {
-        --   on_attach = on_attach,
-        --   capabilities = capabilities,
-        --   flags = {
-        --     debounce_text_changes = 150,
-        --   },
-        --   settings = {
-        --     pylsp = {
-        --       plugins = {
-        --         rope_autoimport = {
-        --           enabled = true
-        --         }
-        --       }
-        --     }
-        --   }
-        -- }
         nvim_lsp['gopls'].setup {
           on_attach = on_attach,
           capabilities = capabilities,
@@ -598,7 +599,7 @@ require("lazy").setup(
                 unreachable = true
               },
               codelenses = {
-                gc_details=false,
+                gc_details=true,
                 generate = true,
                 regenerate_cgo = true,
                 tidy = true,
@@ -669,7 +670,9 @@ require("lazy").setup(
     { "RishabhRD/popfix" },
     { "aznhe21/actions-preview.nvim",
       config = function()
-        vim.keymap.set({ "v", "n" }, "<leader>ca", require("actions-preview").code_actions)
+        vim.keymap.set({ "v", "n" }, "<leader>ca", function()
+          require("actions-preview").code_actions({context={only={"source"}}})
+        end )
       end,
     },
     { "onsails/lspkind-nvim",
@@ -700,6 +703,13 @@ require("lazy").setup(
         vim.lsp.handlers['textDocument/documentSymbol'] = lsputil_sym.document_handler
         vim.lsp.handlers['workspace/symbol'] = lsputil_sym.workspace_handler
       end
+    },
+    { "icholy/lsplinks.nvim",
+       config = function()
+        local lsplinks = require("lsplinks")
+        lsplinks.setup()
+        vim.keymap.set("n", "gx", lsplinks.gx)
+       end
     },
     { "SmiteshP/nvim-navbuddy",
       dependencies = {
@@ -886,7 +896,7 @@ require("lazy").setup(
 
     -- completion {
     { "CopilotC-Nvim/CopilotChat.nvim",
-      branch = "canary",
+      branch = "main",
       opts = {
         show_help = "yes",          -- Show help text for CopilotChatInPlace, default: yes
         debug = false,              -- Enable or disable debug mode, the log file will be in ~/.local/state/nvim/CopilotChat.nvim.log
@@ -898,19 +908,12 @@ require("lazy").setup(
       end,
       event = "VeryLazy",
       keys = {
-        { "<leader>cce", "<cmd>CopilotChatExplain<cr>", desc = "CopilotChat - Explain code" },
-        { "<leader>cct", "<cmd>CopilotChatTests<cr>",   desc = "CopilotChat - Generate tests" },
+        { "<leader>ccc", "<cmd>CopilotChat<cr>",   desc = "CopilotChat" },
         {
-          "<leader>ccv",
-          ":CopilotChatVisual",
+          "<leader>cce",
+          ":CopilotChatExplain",
           mode = "x",
           desc = "CopilotChat - Open in vertical split",
-        },
-        {
-          "<leader>ccx",
-          ":CopilotChatInPlace<cr>",
-          mode = "x",
-          desc = "CopilotChat - Run in-place code",
         },
       },
     },
@@ -927,7 +930,10 @@ require("lazy").setup(
     { "L3MON4D3/LuaSnip",
       dependencies = { 
         "rafamadriz/friendly-snippets",
-        'saadparwaiz1/cmp_luasnip' },
+        'saadparwaiz1/cmp_luasnip',
+        'ajilo297/vscode-swagger-snippets',
+      },
+      version = "v2.*",
       build = "make install_jsregexp",
       config = function()
         require("luasnip.loaders.from_snipmate").lazy_load()
@@ -952,157 +958,174 @@ require("lazy").setup(
         require("copilot_cmp").setup()
       end
     },
-    { 'hrsh7th/nvim-cmp',
+    { 'xzbdmw/colorful-menu.nvim',
       config = function()
-        local t = function(str)
-          return vim.api.nvim_replace_termcodes(str, true, true, true)
-        end
-        local has_words_before = function()
-          unpack = unpack or table.unpack
-          local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-          return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
-        end
+        require('colorful-menu').setup()
+      end
+    },
+    { 'hrsh7th/nvim-cmp',
+    config = function()
+      local t = function(str)
+        return vim.api.nvim_replace_termcodes(str, true, true, true)
+      end
+      local has_words_before = function()
+        unpack = unpack or table.unpack
+        local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+        return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
+      end
 
-        local luasnip = require("luasnip")
-        local cmp = require('cmp')
-        local lspkind = require('lspkind')
-        cmp.setup {
-          view = {
-            entries = { name = "custom", selection_order = 'near_cursor' }
-          },
-          window = {
-            completion = {
-              winhighlight = "Normal:Pmenu,FloatBorder:Pmenu,Search:None",
-              col_offset = -3,
-              side_padding = 0,
-            },
-          },
-          snippet = {
-            expand = function(args)
-              require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
-            end,
-          },
-          formatting = {
-            fields = { "kind", "abbr", "menu" },
-            format = function(entry, vim_item)
-              if vim.tbl_contains({ 'path' }, entry.source.name) then
-                local icon, hl_group = require('nvim-web-devicons').get_icon(entry:get_completion_item()
-                  .label)
-                if icon then
-                  vim_item.kind = icon
-                  vim_item.kind_hl_group = hl_group
-                  return vim_item
-                end
-              end
-              local kind = lspkind.cmp_format({ mode='symbol_text', max_width=50, with_text=true, show_labelDetail=true })(entry, vim_item)
-              local strings = vim.split(kind.kind, "%s", { trimempty = true })
-              kind.kind = " " .. (strings[1] or "") .. " "
-              kind.menu = "    (" .. (strings[2] or "") .. ")"
-              return kind
-            end
-          },
+      local luasnip = require("luasnip")
+      local cmp = require('cmp')
+      local lspkind = require('lspkind')
+      cmp.setup {
+        view = {
+          entries = { name = "custom", selection_order = 'near_cursor' }
+        },
+        window = {
           completion = {
-            keyword_length = 0
+            winhighlight = "Normal:Pmenu,FloatBorder:Pmenu,Search:None",
+            col_offset = -3,
+            side_padding = 0,
           },
-          sources = cmp.config.sources({
-            { name = 'luasnip' },
-            { name = 'nvim_lsp' },
-            { name = 'copilot', priority = 3 },
-            { name = 'buffer' },
-            { name = 'path' },
+        },
+        snippet = {
+          expand = function(args)
+            require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
+          end,
+        },
+        formatting = {
+          fields = { "kind", "abbr", "menu" },
+          format = function(entry, vim_item)
+            if vim.tbl_contains({ 'path' }, entry.source.name) then
+              local icon, hl_group = require('nvim-web-devicons').get_icon(entry:get_completion_item().label)
+              if icon then
+                vim_item.kind = icon
+                vim_item.kind_hl_group = hl_group
+                return vim_item
+              end
+            end
+
+            local completion_item = entry:get_completion_item()
+            local highlights_info = require('colorful-menu').highlights(completion_item, vim.bo.filetype)
+            if highlights_info == nil then
+              vim_item.abbr = completion_item.label
+            else
+              vim_item.abbr_hl_group = highlights_info.highlights
+              vim_item.abbr = highlights_info.text
+            end
+
+            local kind = lspkind.cmp_format({ mode='symbol_text', max_width=50, with_text=true, show_labelDetail=true })(entry, vim_item)
+            local strings = vim.split(kind.kind, "%s", { trimempty = true })
+            kind.kind = " " .. (strings[1] or "") .. " "
+            kind.menu = "    (" .. (strings[2] or "") .. ")"
+            return kind
+          end
+        },
+        completion = {
+          keyword_length = 0
+        },
+        sources = cmp.config.sources({
+          { name = 'luasnip' },
+          { name = 'nvim_lsp' },
+          { name = 'copilot', priority = 1 },
+          { name = 'buffer' },
+          { name = 'path' },
+        }),
+        mapping = {
+          ["<Tab>"] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+              cmp.select_next_item()
+            elseif luasnip.expand_or_jumpable() then
+              luasnip.expand_or_jump()
+            elseif has_words_before() then
+              cmp.complete()
+            else
+              fallback()
+            end
+          end, { "i", "s" }),
+
+          ["<S-Tab>"] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+              cmp.select_prev_item()
+            elseif luasnip.jumpable(-1) then
+              luasnip.jump(-1)
+            else
+              fallback()
+            end
+          end, { "i", "s" }),
+          ['<Down>'] = cmp.mapping(cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Select }), { 'i' }),
+          ['<Up>'] = cmp.mapping(cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Select }), { 'i' }),
+          ['<C-n>'] = cmp.mapping({
+            c = function()
+              if cmp.visible() then
+                cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
+              else
+                vim.api.nvim_feedkeys(t('<Down>'), 'n', true)
+              end
+            end,
+            i = function(fallback)
+              if cmp.visible() then
+                cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
+              else
+                fallback()
+              end
+            end
           }),
-          mapping = {
-            ["<Tab>"] = cmp.mapping(function(fallback)
+          ['<C-p>'] = cmp.mapping({
+            c = function()
               if cmp.visible() then
-                cmp.select_next_item()
-                -- You could replace the expand_or_jumpable() calls with expand_or_locally_jumpable()
-                -- that way you will only jump inside the snippet region
-              elseif luasnip.expand_or_jumpable() then
-                luasnip.expand_or_jump()
-              elseif has_words_before() then
-                cmp.complete()
+                cmp.select_prev_item({ behavior = cmp.SelectBehavior.Select })
+              else
+                vim.api.nvim_feedkeys(t('<Up>'), 'n', true)
+              end
+            end,
+            i = function(fallback)
+              if cmp.visible() then
+                cmp.select_prev_item({ behavior = cmp.SelectBehavior.Select })
               else
                 fallback()
               end
-            end, { "i", "s" }),
-
-            ["<S-Tab>"] = cmp.mapping(function(fallback)
+            end
+          }),
+          ['<C-b>'] = cmp.mapping(cmp.mapping.scroll_docs(-4), { 'i', 'c' }),
+          ['<C-f>'] = cmp.mapping(cmp.mapping.scroll_docs(4), { 'i', 'c' }),
+          ['<C-Space>'] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+              cmp.complete()
+            else
+              vim.api.nvim_feedkeys(t('<C-Space>'), 'n', true)
+            end
+          end, { 'i', 'c' }),
+          ['<C-e>'] = cmp.mapping({ i = cmp.mapping.close(), c = cmp.mapping.close() }),
+          ['<CR>'] = cmp.mapping({
+            i = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = false }),
+            c = function(fallback)
               if cmp.visible() then
-                cmp.select_prev_item()
-              elseif luasnip.jumpable(-1) then
-                luasnip.jump(-1)
+                cmp.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = false })
               else
                 fallback()
               end
-            end, { "i", "s" }),
-            ['<Down>'] = cmp.mapping(cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Select }), { 'i' }),
-            ['<Up>'] = cmp.mapping(cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Select }), { 'i' }),
-            ['<C-n>'] = cmp.mapping({
-              c = function()
-                if cmp.visible() then
-                  cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
-                else
-                  vim.api.nvim_feedkeys(t('<Down>'), 'n', true)
-                end
-              end,
-              i = function(fallback)
-                if cmp.visible() then
-                  cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
-                else
-                  fallback()
-                end
-              end
-            }),
-            ['<C-p>'] = cmp.mapping({
-              c = function()
-                if cmp.visible() then
-                  cmp.select_prev_item({ behavior = cmp.SelectBehavior.Select })
-                else
-                  vim.api.nvim_feedkeys(t('<Up>'), 'n', true)
-                end
-              end,
-              i = function(fallback)
-                if cmp.visible() then
-                  cmp.select_prev_item({ behavior = cmp.SelectBehavior.Select })
-                else
-                  fallback()
-                end
-              end
-            }),
-            ['<C-b>'] = cmp.mapping(cmp.mapping.scroll_docs(-4), { 'i', 'c' }),
-            ['<C-f>'] = cmp.mapping(cmp.mapping.scroll_docs(4), { 'i', 'c' }),
-            ['<C-Space>'] = cmp.mapping.complete(),
-            ['<C-e>'] = cmp.mapping({ i = cmp.mapping.close(), c = cmp.mapping.close() }),
-            ['<CR>'] = cmp.mapping({
-              i = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = false }),
-              c = function(fallback)
-                if cmp.visible() then
-                  cmp.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = false })
-                else
-                  fallback()
-                end
-              end
-            }),
-          },
+            end
+          }),
+        },
+      }
+      -- Use buffer source for `/`.
+      cmp.setup.cmdline('/', {
+        completion = { autocomplete = false },
+        sources = {
+          { name = 'buffer', option = { keyword_pattern = [=[[^[:blank:]].*]=] } }
         }
-        -- Use buffer source for `/`.
-        cmp.setup.cmdline('/', {
-          completion = { autocomplete = false },
-          sources = {
-            -- { name = 'buffer' }
-            { name = 'buffer', option = { keyword_pattern = [=[[^[:blank:]].*]=] } }
-          }
-        })
+      })
 
-        -- Use cmdline & path source for ':'.
-        cmp.setup.cmdline(':', {
-          completion = { autocomplete = false },
-          sources = cmp.config.sources({
-            { name = 'path' }
-          }, {
-            { name = 'cmdline' }
-          })
+      -- Use cmdline & path source for ':'.
+      cmp.setup.cmdline(':', {
+        completion = { autocomplete = false },
+        sources = cmp.config.sources({
+          { name = 'path' }
+        }, {
+          { name = 'cmdline' }
         })
+      })
       end
     },
     { "ThePrimeagen/refactoring.nvim",
@@ -1163,23 +1186,6 @@ require("lazy").setup(
     { "sindrets/diffview.nvim",
       dependencies = 'nvim-lua/plenary.nvim'
     },
-    { 'NeogitOrg/neogit',
-      dependencies = {
-        'nvim-lua/plenary.nvim',
-        'sindrets/diffview.nvim'
-      },
-      config = function()
-        require 'neogit'.setup {
-          console_timeout = 7000,
-          integrations = {
-            diffview = true,
-            telescope = true,
-          }
-        }
-        local opts = { noremap = true, silent = true }
-        vim.api.nvim_set_keymap("n", "<Leader>gn", "<Cmd>Neogit<CR>", opts)
-      end
-    },
     -- use { 'pwntester/octo.nvim', config = function()
     --   require "octo".setup()
     -- end }
@@ -1202,6 +1208,47 @@ require("lazy").setup(
         }
       end
     },
+    { 'NeogitOrg/neogit',
+      dependencies = {
+        'nvim-lua/plenary.nvim',
+        'sindrets/diffview.nvim'
+      },
+      config = function()
+        require 'neogit'.setup {
+          disable_hint = true,
+          console_timeout = 3000,
+          graph_style = "kitty",
+          process_spinner = false,
+          integrations = {
+            diffview = true,
+            telescope = true,
+          }
+        }
+        local opts = { noremap = true, silent = true }
+        vim.api.nvim_set_keymap("n", "<Leader>gn", "<Cmd>Neogit<CR>", opts)
+      end
+    },
+    -- { "harrisoncramer/gitlab.nvim",
+    --   dependencies = {
+    --     "MunifTanjim/nui.nvim",
+    --     "folke/tokyonight.nvim",
+    --     "nvim-lua/plenary.nvim",
+    --     "sindrets/diffview.nvim",
+    --     "stevearc/dressing.nvim", -- Recommended but not required. Better UI for pickers.
+    --     "nvim-tree/nvim-web-devicons" -- Recommended but not required. Icons in discussion tree.
+    --   },
+    --   enabled = true,
+    --   build = function() require("gitlab.server").build(true) end, -- Builds the Go binary
+    --   config = function()
+    --     require("gitlab").setup({
+    --       colors = {
+    --         discussion_tree = {
+    --           mention = "Normal", -- Use a different highlight group here, like "Normal" 
+    --         }
+    --       }
+    --     })
+    --   end,
+    -- },
     -- }
 
     -- Languages {
@@ -1301,12 +1348,33 @@ require("lazy").setup(
           }
         )
       end
-    }
+    },
+    -- }
+    -- YAML {
+    { 'vinnymeller/swagger-preview.nvim',
+      config = function ()
+        require("swagger-preview").setup({
+          -- The port to run the preview server on
+          port = 8000,
+          -- The host to run the preview server on
+          host = "127.0.0.1",
+        })
+      end },
     -- }
     -- }
   }
 )
 
+-- Some additional stuff
+vim.api.nvim_create_autocmd({'UIEnter'}, {
+    callback = function(event)
+        local client = vim.api.nvim_get_chan_info(vim.v.event.chan).client
+        if client ~= nil and client.name == "Firenvim" then
+          vim.print("Firenvim client connected")
+          require('incline').disable()
+        end
+    end
+})
 -- DIE
 vim.diagnostic.config { virtual_text = false }
 
