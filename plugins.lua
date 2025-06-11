@@ -12,8 +12,7 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup(
-  {
-    -- Vim stuff {
+  { -- Vim stuff {
     {'folke/tokyonight.nvim',
       config = true
     },
@@ -223,6 +222,23 @@ require("lazy").setup(
     },
     "rcarriga/nvim-notify",
     "AndrewRadev/linediff.vim",
+    { 'aaronik/treewalker.nvim',
+      config = function()
+        require'treewalker'.setup{
+          -- Whether to briefly highlight the node after jumping to it
+          highlight = true,
+          -- How long should above highlight last (in ms)
+          highlight_duration = 250,
+          -- The color of the above highlight. Must be a valid vim highlight group.
+          -- (see :h highlight-group for options)
+          highlight_group = 'CursorLine',
+        }
+        vim.keymap.set({ 'n', 'v' }, '<M-k>', '<cmd>Treewalker Up<cr>', { silent = true })
+        vim.keymap.set({ 'n', 'v' }, '<M-j>', '<cmd>Treewalker Down<cr>', { silent = true })
+        vim.keymap.set({ 'n', 'v' }, '<M-h>', '<cmd>Treewalker Left<cr>', { silent = true })
+        vim.keymap.set({ 'n', 'v' }, '<M-l>', '<cmd>Treewalker Right<cr>', { silent = true })
+      end
+    },
     -- { "nvim-zh/colorful-winsep.nvim",
     --   config = true,
     --   event = { "WinNew" },
@@ -234,7 +250,11 @@ require("lazy").setup(
     -- { "nvim-telescope/telescope-frecency.nvim",
     --    dependencies = { "tami5/sqlite.lua" } },
 
-    { "nvim-telescope/telescope-dap.nvim" },
+    { "nvim-telescope/telescope-dap.nvim",
+      config = function()
+        require('telescope').load_extension('dap')
+      end
+    },
     { "nvim-telescope/telescope.nvim",
       dependencies = {
         { 'nvim-lua/popup.nvim' },
@@ -310,19 +330,19 @@ require("lazy").setup(
         -- vim.api.nvim_set_keymap("n", "<Leader>gS", "<Cmd>lua require('telescope.builtin').git_stash()<CR>", opts)
         -- }
         -- DAP stuff {
-        vim.api.nvim_set_keymap('n', '<leader>dtc',
-          '<cmd>lua require"telescope".extensions.dap.commands{}<CR>', opts)
-        vim.api.nvim_set_keymap('n', '<leader>dto',
-          '<cmd>lua require"telescope".extensions.dap.configurations{}<CR>',
-          opts)
-        vim.api.nvim_set_keymap('n', '<leader>dtb',
-          '<cmd>lua require"telescope".extensions.dap.list_breakpoints{}<CR>'
-          ,
-          opts)
-        vim.api.nvim_set_keymap('n', '<leader>dtv',
-          '<cmd>lua require"telescope".extensions.dap.variables{}<CR>', opts)
-        vim.api.nvim_set_keymap('n', '<leader>dtf', '<cmd>lua require"telescope".extensions.dap.frames{}<CR>',
-          opts)
+        -- vim.api.nvim_set_keymap('n', '<leader>dtc',
+        --   '<cmd>lua require"telescope".extensions.dap.commands{}<CR>', opts)
+        -- vim.api.nvim_set_keymap('n', '<leader>dto',
+        --   '<cmd>lua require"telescope".extensions.dap.configurations{}<CR>',
+        --   opts)
+        -- vim.api.nvim_set_keymap('n', '<leader>dtb',
+        --   '<cmd>lua require"telescope".extensions.dap.list_breakpoints{}<CR>'
+        --   ,
+        --   opts)
+        -- vim.api.nvim_set_keymap('n', '<leader>dtv',
+        --   '<cmd>lua require"telescope".extensions.dap.variables{}<CR>', opts)
+        -- vim.api.nvim_set_keymap('n', '<leader>dtf', '<cmd>lua require"telescope".extensions.dap.frames{}<CR>',
+        --   opts)
         -- }
         -- Commands {
         vim.api.nvim_set_keymap("n", "<Leader><tab>", "<Cmd>lua require('telescope.builtin').commands()<CR>",
@@ -373,7 +393,7 @@ require("lazy").setup(
         nls.register(require('none-ls-shellcheck.code_actions'))
         local sources = {
           -- nls.builtins.diagnostics.semgrep,
-          nls.builtins.diagnostics.mypy.with({ prefer_local = true }),
+          -- nls.builtins.diagnostics.mypy.with({ prefer_local = true }),
           nls.builtins.code_actions.refactoring,
           nls.builtins.diagnostics.hadolint,
           nls.builtins.formatting.isort,
@@ -406,7 +426,12 @@ require("lazy").setup(
           virtual_text = false,
           virtual_lines = false,
         })
-        require('tiny-inline-diagnostic').setup()
+        require('tiny-inline-diagnostic').setup({
+          preset = "minimal"
+        })
+        vim.keymap.set("n", ",t", function()
+          require('tiny-inline-diagnostic').toggle()
+        end, { desc = "Toggle inline diagnostics" })
       end
     },
     { "neovim/nvim-lspconfig",
@@ -494,7 +519,7 @@ require("lazy").setup(
 
 
           -- See `:help vim.lsp.*` for documentation on any of the below functions
-          buf_set_keymap('n', '<leader>ih', '<cmd>lua vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())<CR>', opts)
+          buf_set_keymap('n', ',h', '<cmd>lua vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())<CR>', opts)
           buf_set_keymap('n', 'gD', '<Cmd>lua vim.lsp.buf.declaration()<CR>', opts)
           buf_set_keymap('n', '<C-]>', "<Cmd>lua vim.lsp.buf.definition(require'telescope.themes'.get_ivy { })<CR>",
             opts)
@@ -536,7 +561,8 @@ require("lazy").setup(
         -- Use a loop to conveniently call 'setup' on multiple servers and
         -- map buffer local keybindings when the language server attaches
         local servers = { "rust_analyzer", "yamlls", "jsonls", "ts_ls", 'terraformls',
-          "luau_lsp", "pyright", "bashls", "ruff", "marksman", "vacuum" }
+          "luau_lsp", "pyright", "bashls",  "marksman", "vacuum" }
+        -- "ruff",
 
         -- Add openapi filetypes for vacuum
         -- Anything that matches openapi.*.ya?ml or openapi.*.json
@@ -553,6 +579,9 @@ require("lazy").setup(
             capabilities.textDocument.completion.completionItem.snippetSupport = false
           end
           nvim_lsp[lsp].setup {
+            root_dir = function()
+              return vim.fn.getcwd()
+            end,
             on_attach = on_attach,
             capabilities = capabilities,
             flags = {
@@ -724,7 +753,20 @@ require("lazy").setup(
     -- }
 
     -- debug {
-    { "theHamsta/nvim-dap-virtual-text" },
+    { "theHamsta/nvim-dap-virtual-text",
+      config = function()
+        require('nvim-dap-virtual-text').setup({
+          enabled = true,
+          highlight_changed_variables = true,
+          highlight_new_as_changed = true,
+          all_references = true,
+          virt_text_pos = 'eol', -- 'eol' | 'inline' | 'right_align'
+          commented = false,
+          show_stop_reason = true,
+          commented_string = "󰁂 ",
+        })
+      end
+    },
     { "williamboman/mason.nvim",
       config = function()
         require('mason').setup {
@@ -847,6 +889,37 @@ require("lazy").setup(
         })
       end
     },
+    { "nvim-neotest/neotest",
+      dependencies = {
+        "nvim-neotest/neotest-python",
+        "nvim-neotest/nvim-nio",
+        "nvim-lua/plenary.nvim",
+        "antoinemadec/FixCursorHold.nvim",
+        "nvim-treesitter/nvim-treesitter"
+      },
+      config = function ()
+        require("neotest").setup({
+          adapters = {
+            require("neotest-python")({
+              dap = { justMyCode = false },
+              default_strategy="dap",
+            })
+          }
+        })
+
+        vim.fn.sign_define('DapBreakpoint', {text=" ", texthl='', linehl='', numhl=''})
+        vim.fn.sign_define('DapStopped', {text='󰁕 ', texthl='', linehl='', numhl=''})
+        vim.fn.sign_define('DapBreakpointCondition', {text=" ", texthl='', linehl='', numhl=''})
+        vim.fn.sign_define('DapLogPoint', {text=".󰁕", texthl='', linehl='', numhl=''})
+
+        vim.keymap.set('n', '<leader>dtr', '<cmd>lua require("neotest").run.run({strategy="dap"})<CR>')
+        vim.keymap.set('n', '<leader>dtR', '<cmd>lua require("neotest").run.run({vim.fn.expand("%"), strategy="dap"})<CR>')
+        vim.keymap.set("n", "<leader>dwa", require'dapui'.elements.watches.add, { silent = true })
+        -- panel
+        vim.keymap.set('n', '<leader>dtp', require('neotest').output_panel.toggle)
+        vim.keymap.set('n', '<leader>dtl', require('neotest').summary.toggle)
+      end
+    },
     -- use { "rcarriga/vim-ultest",
     --       dependencies = {"vim-test/vim-test"},
     --       build = ":UpdateRemotePlugins" }
@@ -916,6 +989,13 @@ require("lazy").setup(
           desc = "CopilotChat - Open in vertical split",
         },
       },
+    },
+    { "olimorris/codecompanion.nvim",
+      dependencies = {
+        "nvim-lua/plenary.nvim",
+        "nvim-treesitter/nvim-treesitter",
+      },
+      config = true
     },
     { "MunifTanjim/nui.nvim" },
     { "honza/vim-snippets" },
@@ -1006,19 +1086,18 @@ require("lazy").setup(
             end
 
             local completion_item = entry:get_completion_item()
-            local highlights_info = require('colorful-menu').highlights(completion_item, vim.bo.filetype)
+            local highlights_info = require('colorful-menu').cmp_highlights(entry)
             if highlights_info == nil then
               vim_item.abbr = completion_item.label
             else
               vim_item.abbr_hl_group = highlights_info.highlights
               vim_item.abbr = highlights_info.text
             end
-
             local kind = lspkind.cmp_format({ mode='symbol_text', max_width=50, with_text=true, show_labelDetail=true })(entry, vim_item)
             local strings = vim.split(kind.kind, "%s", { trimempty = true })
             kind.kind = " " .. (strings[1] or "") .. " "
             kind.menu = "    (" .. (strings[2] or "") .. ")"
-            return kind
+            return vim_item
           end
         },
         completion = {
@@ -1324,6 +1403,61 @@ require("lazy").setup(
     -- }
     -- Python {
     -- use { 'tmhedberg/SimpylFold' }
+    { 'mfussenegger/nvim-dap-python',
+      config = function()
+        require 'dap-python'.setup()
+          table.insert(require('dap').configurations.python, {
+            type = 'python',
+            request = 'launch',
+            name = 'Run locally Prod',
+            program = '${file}',
+            justMyCode = false,
+            cwd='${workspaceFolder}',
+            env = {--PYTHONPATH=$(pwd),
+              PYTHONPATH=vim.fn.getcwd() .. ':' .. vim.fn.getcwd() .. '/..',
+              AWS_PROFILE='default',
+              PYTHONUNBUFFERED='1',
+              API_STAGE='prod',
+              ZESTY_DISK_VERSION='v6',
+              ZESTY_EMULATOR='False',
+              ZESTY_END_TO_END_TEST='False'}
+          })
+
+          table.insert(require('dap').configurations.python, {
+            type = 'python',
+            request = 'launch',
+            name = 'Run locally Staging',
+            program = '${file}',
+            justMyCode = false,
+            cwd='${workspaceFolder}',
+            env = {
+              PYTHONPATH=vim.fn.getcwd() .. ':' .. vim.fn.getcwd() .. '/..',
+              AWS_PROFILE='default',
+              PYTHONUNBUFFERED='1',
+              API_STAGE='staging',
+              ZESTY_DISK_VERSION='v6',
+              ZESTY_EMULATOR='False',
+              ZESTY_END_TO_END_TEST='False'}
+          })
+
+          table.insert(require('dap').configurations.python, {
+            type = 'python',
+            request = 'launch',
+            name = 'pytest',
+            program = 'pytest -s ${file} -k ${args}',
+            justMyCode = false,
+            cwd='${workspaceFolder}',
+            env = {
+              PYTHONPATH=vim.fn.getcwd() .. ':' .. vim.fn.getcwd() .. '/..',
+              AWS_PROFILE='default',
+              PYTHONUNBUFFERED='1',
+              API_STAGE='dev',
+              ZESTY_DISK_VERSION='v6',
+              ZESTY_EMULATOR='False',
+              ZESTY_END_TO_END_TEST='False'}
+          })
+      end
+    },
     -- }
     -- Markdown {
     { "iamcco/markdown-preview.nvim",

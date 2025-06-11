@@ -1,5 +1,5 @@
 " Modeline and Notes {{{
-" vim: set sw=2 ts=2 sts=2 et tw=78 foldmarker={{{,}}} foldlevel=0 foldmethod=marker nospell:
+" vim: set sw=2 ts=2 sts=2 et tw=78 nospell:
 
 "          DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
 "                     Version 2, December 2004
@@ -42,7 +42,6 @@
     set splitbelow                                  " Puts new vsplit windows to the bottom of the current
     set splitright                                  " Puts new vsplit windows to the right of the current
     set matchpairs+=<:>                             " Match, to be used with %
-    set pastetoggle=<F11>                           " pastetoggle (sane indentation on pastes)
     set cursorline                                  " Highlight the line where cursor located
     set backspace=indent,eol,start                  " Better backspace navigation
     set nonu                                        " No Line numbers
@@ -134,7 +133,9 @@ so $HOME/.config/nvim/bindings/bindings.vim
   nnoremap <silent> <leader>dbc :lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>
   nnoremap <silent> <leader>dbl :lua require'dap'.set_breakpoint(nil, nil, vim.fn.input('Log point message: '))<CR>
   nnoremap <silent> <leader>dr :lua require'dap'.repl.open()<CR>
-  nnoremap <silent> <leader>dl :lua require'dap'.run_last()<CR>
+  nnoremap <silent> <leader>dn :lua require'dap'.run_last()<CR>
+  nnoremap <silent> <leader>ds :lua require'dap'.close()<CR>
+
   nnoremap <silent> <leader>dui :lua require'dapui'.toggle()<CR>
   nnoremap <silent> <leader>duf :lua require'dapui'.float_element()<CR>
 " }}}"
