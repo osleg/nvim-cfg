@@ -712,6 +712,7 @@ require("lazy").setup(
             Method = 'ƒ',
             Function = '',
             Constructor = '',
+            Codeium = '',
             Copilot = ''
           }
         })
@@ -968,6 +969,11 @@ require("lazy").setup(
     -- }
 
     -- completion {
+    { "Exafunction/windsurf.nvim",
+      config = function()
+        require("codeium").setup({})
+      end
+    },
     { "CopilotC-Nvim/CopilotChat.nvim",
       branch = "main",
       opts = {
@@ -1107,6 +1113,7 @@ require("lazy").setup(
           { name = 'luasnip' },
           { name = 'nvim_lsp' },
           { name = 'copilot', priority = 1 },
+          { name = 'codeium', priority = 1 },
           { name = 'buffer' },
           { name = 'path' },
         }),
