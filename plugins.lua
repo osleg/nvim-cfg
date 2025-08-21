@@ -79,6 +79,37 @@ require("lazy").setup(
     },
     -- "HiPhish/nvim-ts-rainbow2",
     'HiPhish/rainbow-delimiters.nvim',
+    { "lukas-reineke/indent-blankline.nvim",
+      main = "ibl",
+      config = function()
+        local highlight = {
+            "RainbowRed",
+            "RainbowYellow",
+            "RainbowBlue",
+            "RainbowOrange",
+            "RainbowGreen",
+            "RainbowViolet",
+            "RainbowCyan",
+        }
+        local hooks = require "ibl.hooks"
+        -- create the highlight groups in the highlight setup hook, so they are reset
+        -- every time the colorscheme changes
+        hooks.register(hooks.type.HIGHLIGHT_SETUP, function()
+            vim.api.nvim_set_hl(0, "RainbowRed", { fg = "#E06C75" })
+            vim.api.nvim_set_hl(0, "RainbowYellow", { fg = "#E5C07B" })
+            vim.api.nvim_set_hl(0, "RainbowBlue", { fg = "#61AFEF" })
+            vim.api.nvim_set_hl(0, "RainbowOrange", { fg = "#D19A66" })
+            vim.api.nvim_set_hl(0, "RainbowGreen", { fg = "#98C379" })
+            vim.api.nvim_set_hl(0, "RainbowViolet", { fg = "#C678DD" })
+            vim.api.nvim_set_hl(0, "RainbowCyan", { fg = "#56B6C2" })
+        end)
+
+        vim.g.rainbow_delimiters = { highlight = highlight }
+        require("ibl").setup { scope = { highlight = highlight } }
+
+        hooks.register(hooks.type.SCOPE_HIGHLIGHT, hooks.builtin.scope_highlight_from_extmark)
+      end
+    },
     -- TODO: configure and set bindings through mapper
     { "numtostr/FTerm.nvim",
       config = function()
@@ -109,11 +140,6 @@ require("lazy").setup(
       },
       config = function()
         require("nvim-tree").setup {}
-        --   git = {
-        --     enable = false,
-        --   }
-        -- }
-        -- require("nvim-tree-preview").setup {}
       end,
     },
     'famiu/bufdelete.nvim',
@@ -222,27 +248,33 @@ require("lazy").setup(
     },
     "rcarriga/nvim-notify",
     "AndrewRadev/linediff.vim",
-    { 'aaronik/treewalker.nvim',
-      config = function()
-        require'treewalker'.setup{
-          -- Whether to briefly highlight the node after jumping to it
-          highlight = true,
-          -- How long should above highlight last (in ms)
-          highlight_duration = 250,
-          -- The color of the above highlight. Must be a valid vim highlight group.
-          -- (see :h highlight-group for options)
-          highlight_group = 'CursorLine',
-        }
-        vim.keymap.set({ 'n', 'v' }, '<M-k>', '<cmd>Treewalker Up<cr>', { silent = true })
-        vim.keymap.set({ 'n', 'v' }, '<M-j>', '<cmd>Treewalker Down<cr>', { silent = true })
-        vim.keymap.set({ 'n', 'v' }, '<M-h>', '<cmd>Treewalker Left<cr>', { silent = true })
-        vim.keymap.set({ 'n', 'v' }, '<M-l>', '<cmd>Treewalker Right<cr>', { silent = true })
-      end
+    { "folke/noice.nvim",
+      event = "VeryLazy",
+      opts = {
+        cmdline = {
+          view = "cmdline",
+        },
+        lsp = {
+          -- override markdown rendering so that **cmp** and other plugins use **Treesitter**
+          override = {
+            ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+            ["vim.lsp.util.stylize_markdown"] = true,
+            ["cmp.entry.get_documentation"] = true, -- requires hrsh7th/nvim-cmp
+          },
+        },
+        presets = {
+          bottom_search = true, -- use a classic bottom cmdline for search
+          command_palette = false, -- position the cmdline and popupmenu together
+          long_message_to_split = true, -- long messages will be sent to a split
+          inc_rename = false, -- enables an input dialog for inc-rename.nvim
+          lsp_doc_border = false, -- add a border to hover docs and signature help
+        },
+      },
+      dependencies = {
+        "MunifTanjim/nui.nvim",
+        "rcarriga/nvim-notify",
+      }
     },
-    -- { "nvim-zh/colorful-winsep.nvim",
-    --   config = true,
-    --   event = { "WinNew" },
-    -- },
     -- }
 
     -- Telescope {
@@ -257,22 +289,27 @@ require("lazy").setup(
     },
     { "nvim-telescope/telescope.nvim",
       dependencies = {
+        { 'nvim-telescope/telescope-ui-select.nvim' },
         { 'nvim-lua/popup.nvim' },
         { 'nvim-lua/plenary.nvim' },
-        { 'nvim-telescope/telescope-fzf-writer.nvim' },
+        { 'nvim-telescope/telescope-fzf-native.nvim' },
         { 'ThePrimeagen/git-worktree.nvim' },
-        { "nvim-telescope/telescope-dap.nvim" }
+        { "nvim-telescope/telescope-dap.nvim" },
+        { "ibhagwan/fzf-lua" }, -- NOTE: this is dependency only because the binds are here 
       },
-      config = function()
+      config = function()-- {
         local trouble = require('trouble.sources.telescope')
         local aerial = require('aerial')
         local telescope = require('telescope')
         local actions = require('telescope.actions')
+
         telescope.load_extension("git_worktree")
         telescope.load_extension("dap")
         telescope.load_extension("aerial")
-        -- telescope.load_extension("fzf_writer")
         telescope.load_extension("refactoring")
+        telescope.load_extension('menufacture')
+        telescope.load_extension('ui-select')
+
         telescope.setup {
           defaults = vim.tbl_extend(
             "force",
@@ -289,13 +326,11 @@ require("lazy").setup(
             }
           ),
           extensions = {
-            fzf_writer = {
-              minimum_grep_characters = 2,
-              minimum_files_characters = 2,
-              -- Disabled by default.
-              -- Will probably slow down some aspects of the sorter, but can make color highlights.
-              -- I will work on this more later.
-              _highlighter = true,
+            fzf = {
+              fuzzy = true,
+              override_generic_sorter = true,
+              override_file_sorter = true,
+              case_mode = "smart_case",
             },
             aerial = {
               show_nesting = {
@@ -306,15 +341,15 @@ require("lazy").setup(
         }
         local opts = { noremap = true, silent = true }
         -- mappings {
-        vim.api.nvim_set_keymap("n", "<Leader>gg", "<Cmd>lua require('telescope.builtin').resume()<CR>", opts)
+        vim.api.nvim_set_keymap("n", "<Leader>gg", "<Cmd>lua require('fzf-lua').resume()<CR>", opts)
         -- Buffer/file stuff {
-        vim.api.nvim_set_keymap("n", "<Leader>bf", "<Cmd>lua require('telescope.builtin').git_files()<CR>",
+        vim.api.nvim_set_keymap("n", "<Leader>bf", "<Cmd>lua require('fzf-lua').files()<CR>",
           opts)
-        vim.api.nvim_set_keymap("n", "<Leader>bb", "<Cmd>lua require('telescope.builtin').buffers()<CR>",
+        vim.api.nvim_set_keymap("n", "<Leader>bb", "<Cmd>lua require('fzf-lua').buffers()<CR>",
           opts)
-        vim.api.nvim_set_keymap("n", "<Leader>bo", "<Cmd>lua require('telescope.builtin').oldfiles()<CR>",
+        vim.api.nvim_set_keymap("n", "<Leader>bo", "<Cmd>lua require('telescope').extensions.menufacture.oldfiles()<CR>",
           opts)
-        vim.api.nvim_set_keymap("n", "<Leader>bg", "<Cmd>lua require('telescope.builtin').live_grep()<CR>",
+        vim.api.nvim_set_keymap("n", "<Leader>bg", "<Cmd>lua require('fzf-lua').live_grep()<CR>",
           opts)
         vim.api.nvim_set_keymap("n", "<Leader>bt", "<Cmd>lua require('telescope').extensions.aerial.aerial()<CR>",
           opts)
@@ -358,18 +393,29 @@ require("lazy").setup(
         )
         -- }
         -- }
-      end
+      end-- }
+    },
+    { 'nvim-telescope/telescope-fzf-native.nvim',
+      build = 'make'
+    },
+    { 'molecule-man/telescope-menufacture' },
+    { "ibhagwan/fzf-lua",
+      -- optional for icon support
+      dependencies = { "nvim-tree/nvim-web-devicons" },
+      -- or if using mini.icons/mini.nvim
+      -- dependencies = { "echasnovski/mini.icons" },
+      opts = {}
     },
     --}
 
     -- lsp {
-    { "j-hui/fidget.nvim",
-      lazy = false,
-      cmd = "Fidget",
-      config = function()
-        require("fidget").setup {}
-      end
-    },
+    -- { "j-hui/fidget.nvim",
+    --   lazy = false,
+    --   cmd = "Fidget",
+    --   config = function()
+    --     require("fidget").setup {}
+    --   end
+    -- },
     { "stevearc/aerial.nvim",
       config = function()
         require('aerial').setup({
@@ -408,6 +454,9 @@ require("lazy").setup(
     },
     { "ray-x/lsp_signature.nvim", },
     { "rmagatti/goto-preview",
+      dependencies = {
+        'rmagatti/logger.nvim'
+      },
       config = function()
         require('goto-preview').setup {
           default_mappings = true,
@@ -561,7 +610,7 @@ require("lazy").setup(
         -- Use a loop to conveniently call 'setup' on multiple servers and
         -- map buffer local keybindings when the language server attaches
         local servers = { "rust_analyzer", "yamlls", "jsonls", "ts_ls", 'terraformls',
-          "luau_lsp", "pyright", "bashls",  "marksman", "vacuum" }
+          "luau_lsp", "bashls",  "marksman", "vacuum" }
         -- "ruff",
 
         -- Add openapi filetypes for vacuum
@@ -579,9 +628,7 @@ require("lazy").setup(
             capabilities.textDocument.completion.completionItem.snippetSupport = false
           end
           nvim_lsp[lsp].setup {
-            root_dir = function()
-              return vim.fn.getcwd()
-            end,
+            root_dir = require('lspconfig.util').find_git_ancestor,
             on_attach = on_attach,
             capabilities = capabilities,
             flags = {
@@ -589,6 +636,37 @@ require("lazy").setup(
             }
           }
         end
+        nvim_lsp['basedpyright'].setup {
+          root_dir = require('lspconfig.util').find_git_ancestor,
+          on_attach = on_attach,
+          single_file_support = true,
+          settings = {
+            pyright = {
+              disableLanguageServices = false,
+              disableOrganizeImports = false
+            },
+            basedpyright = {
+              analysis = {
+                autoSearchPaths = true,
+                diagnosticMode = "workspace",
+                useLibraryCodeForTypes = true
+              }
+            },
+            python = {
+              analysis = {
+                autoImportCompletions = true,
+                autoSearchPaths = true,
+                diagnosticMode = "workspace", -- openFilesOnly, workspace
+                typeCheckingMode = "basic", -- off, basic, strict
+                useLibraryCodeForTypes = true
+              }
+            },
+          },
+          capabilities = capabilities,
+          flags = {
+            debounce_text_changes = 150,
+          }
+        }
         nvim_lsp['clangd'].setup {
           on_attach = on_attach,
           capabilities = capabilities,
@@ -976,12 +1054,114 @@ require("lazy").setup(
     },
     { "CopilotC-Nvim/CopilotChat.nvim",
       branch = "main",
-      opts = {
-        show_help = "yes",          -- Show help text for CopilotChatInPlace, default: yes
-        debug = false,              -- Enable or disable debug mode, the log file will be in ~/.local/state/nvim/CopilotChat.nvim.log
-        disable_extra_info = 'no',  -- Disable extra information (e.g: system prompt) in the response.
-        -- proxy = "socks5://127.0.0.1:3000", -- Proxies requests via https or socks.
-      },
+      config = function ()-- {
+        local chat = require("CopilotChat")
+          chat.setup({
+          show_help = "yes",          -- Show help text for CopilotChatInPlace, default: yes
+          debug = false,              -- Enable or disable debug mode, the log file will be in ~/.local/state/nvim/CopilotChat.nvim.log
+          disable_extra_info = 'no',  -- Disable extra information (e.g: system prompt) in the response.
+          -- proxy = "socks5://127.0.0.1:3000", -- Proxies requests via https or socks.
+        })
+        local mcp = require("mcphub")
+        mcp.on({ "servers_updated", "tool_list_changed", "resource_list_changed" }, function()
+          local hub = mcp.get_hub_instance()
+          if not hub then
+            return
+          end
+
+          local async = require("plenary.async")
+          local call_tool = async.wrap(function(server, tool, input, callback)
+            hub:call_tool(server, tool, input, {
+              callback = function(res, err)
+                callback(res, err)
+              end,
+            })
+          end, 4)
+
+          local access_resource = async.wrap(function(server, uri, callback)
+            hub:access_resource(server, uri, {
+              callback = function(res, err)
+                callback(res, err)
+              end,
+            })
+          end, 3)
+
+          for name, tool in pairs(chat.config.functions) do
+            if tool.id and tool.id:sub(1, 3) == "mcp" then
+              chat.config.functions[name] = nil
+            end
+          end
+          local resources = hub:get_resources()
+          for _, resource in ipairs(resources) do
+            local name = resource.name:lower():gsub(" ", "_"):gsub(":", "")
+            chat.config.functions[name] = {
+              id = "mcp:" .. resource.server_name .. ":" .. name,
+              uri = resource.uri,
+              description = type(resource.description) == "string" and resource.description or "",
+              resolve = function()
+                local res, err = access_resource(resource.server_name, resource.uri)
+                if err then
+                  error(err)
+                end
+
+                res = res or {}
+                local result = res.result or {}
+                local content = result.contents or {}
+                local out = {}
+
+                for _, message in ipairs(content) do
+                  if message.text then
+                    table.insert(out, {
+                      uri = message.uri,
+                      data = message.text,
+                      mimetype = message.mimeType,
+                    })
+                  end
+                end
+
+                return out
+              end,
+            }
+          end
+
+          local tools = hub:get_tools()
+          for _, tool in ipairs(tools) do
+            chat.config.functions[tool.name] = {
+              id = "mcp:" .. tool.server_name .. ":" .. tool.name,
+              group = tool.server_name,
+              description = tool.description,
+              schema = tool.inputSchema,
+              resolve = function(input)
+                local res, err = call_tool(tool.server_name, tool.name, input)
+                if err then
+                  error(err)
+                end
+
+                res = res or {}
+                local result = res.result or {}
+                local content = result.content or {}
+                local out = {}
+
+                for _, message in ipairs(content) do
+                  if message.type == "text" then
+                    table.insert(out, {
+                      data = message.text,
+                    })
+                  elseif message.type == "resource" and message.resource and message.resource.text then
+                    table.insert(out, {
+                      uri = message.resource.uri,
+                      data = message.resource.text,
+                      mimetype = message.resource.mimeType,
+                    })
+                  end
+                end
+
+                return out
+              end,
+            }
+          end
+        end)
+      end,-- }
       build = function()
         vim.notify("Please update the remote plugins by running ':UpdateRemotePlugins', then restart Neovim.")
       end,
@@ -1000,8 +1180,53 @@ require("lazy").setup(
       dependencies = {
         "nvim-lua/plenary.nvim",
         "nvim-treesitter/nvim-treesitter",
+        "ravitemer/mcphub.nvim",
       },
-      config = true
+      opts = {
+        extensions = {
+          mcphub = {
+            callback = "mcphub.extensions.codecompanion",
+            opts = {
+              -- MCP Tools 
+              make_tools = true,              -- Make individual tools (@server__tool) and server groups (@server) from MCP servers
+              show_server_tools_in_chat = true, -- Show individual tools in chat completion (when make_tools=true)
+              add_mcp_prefix_to_tool_names = false, -- Add mcp__ prefix (e.g `@mcp__github`, `@mcp__neovim__list_issues`)
+              show_result_in_chat = true,      -- Show tool results directly in chat buffer
+              format_tool = nil,               -- function(tool_name:string, tool: CodeCompanion.Agent.Tool) : string Function to format tool names to show in the chat buffer
+              -- MCP Resources
+              make_vars = true,                -- Convert MCP resources to #variables for prompts
+              -- MCP Prompts 
+              make_slash_commands = true,      -- Add MCP prompts as /slash commands
+            }
+          }
+        },
+        adapters = {
+          openai = function()
+            return require("codecompanion.adapters").extend("openai", {
+              env = {
+                api_key = "OPENAI_API_KEY",
+              },
+            })
+          end,
+        },
+        display = {
+          chat = {
+            icons = {
+              chat_context = "📎️", -- You can also apply an icon to the fold
+            },
+            fold_context = true,
+          },
+        },
+      }
+    },
+    { "ravitemer/mcphub.nvim",
+      dependencies = {
+        "nvim-lua/plenary.nvim",
+      },
+      build = "npm install -g mcp-hub@latest",  -- Installs `mcp-hub` node binary globally
+      config = function()
+        require("mcphub").setup()
+      end
     },
     { "MunifTanjim/nui.nvim" },
     { "honza/vim-snippets" },
@@ -1283,11 +1508,6 @@ require("lazy").setup(
     -- end }
     -- use {'tpope/vim-fugitive'}
     { 'junegunn/gv.vim' },
-    { 'ThePrimeagen/git-worktree.nvim',
-      config = function()
-        require("git-worktree").setup {}
-      end
-    },
     { "lewis6991/gitsigns.nvim",
       config = function()
         local on_attach = function(bufnr)
@@ -1450,7 +1670,26 @@ require("lazy").setup(
               API_STAGE='staging',
               ZESTY_DISK_VERSION='v6',
               ZESTY_EMULATOR='False',
-              ZESTY_END_TO_END_TEST='False'}
+              ZESTY_END_TO_END_TEST='False',
+              ZESTY_LOGGER_CONSOLE_LEVEL='DEBUG'}
+          })
+
+          table.insert(require('dap').configurations.python, {
+            type = 'python',
+            request = 'launch',
+            name = 'Run monitor.py Staging',
+            program = 'src/monitor.py',
+            justMyCode = false,
+            cwd='/Users/alex.zaslavsky/Projects/zesty/ebs-autoscaler',
+            env = {
+              PYTHONPATH=vim.fn.getcwd() .. ':' .. vim.fn.getcwd() .. '/..',
+              AWS_PROFILE='default',
+              PYTHONUNBUFFERED='1',
+              API_STAGE='staging',
+              ZESTY_DISK_VERSION='v6',
+              ZESTY_EMULATOR='False',
+              ZESTY_END_TO_END_TEST='False',
+              ZESTY_LOGGER_CONSOLE_LEVEL='DEBUG'}
           })
 
           table.insert(require('dap').configurations.python, {

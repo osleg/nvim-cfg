@@ -22,7 +22,7 @@
     syntax on                                       " Syntax Highlight
     set autoread                                    " Re-read file if it was changed on disk
     set autowrite                                   " Write buffer on leave
-    set shortmess=aoOtTc                            " Basically... truncate almost everything
+    set shortmess=aoOtTcF                           " Basically... truncate almost everything
     set viewoptions=cursor,folds,options            " What to write for mkview
     set virtualedit=onemore                         " Allow virtual editing everything
     set history=250                                 " Moar history!
