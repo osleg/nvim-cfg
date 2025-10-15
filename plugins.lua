@@ -11,13 +11,12 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
-require("lazy").setup(
-  { -- Vim stuff {
+require("lazy").setup( { 
+  -- Vim stuff {
     {'folke/tokyonight.nvim',
       config = true
     },
     { "shortcuts/no-neck-pain.nvim" },
-    'eandrju/cellular-automaton.nvim',
     { 'glacambre/firenvim',
       build = ":call firenvim#install(0)",
       config = function()
@@ -36,7 +35,6 @@ require("lazy").setup(
     { "tpope/vim-rsi" },
     { "tpope/vim-surround" },
     "godlygeek/tabular",
-    { "folke/lsp-colors.nvim", opts = {} },
     { "folke/which-key.nvim",
         opts = {
         preset = "modern",
@@ -156,6 +154,13 @@ require("lazy").setup(
                 cond = navic.is_available
               },
             },
+            lualine_x = {
+              {
+                require("noice").api.statusline.mode.get,
+                cond = require("noice").api.statusline.mode.has,
+                color = { fg = "#ff9e64" },
+              }, 'encoding', 'fileformat', 'filetype'
+            }
           },
           winbar = {
           },
@@ -184,7 +189,9 @@ require("lazy").setup(
       event = "VeryLazy"
     },
     { 'simnalamburt/vim-mundo' },
-    { 'windwp/nvim-autopairs' },
+    { 'windwp/nvim-autopairs',
+      opts = {}
+    },
     { "kevinhwang91/nvim-ufo",
       dependencies = { 'kevinhwang91/promise-async' },
       config = function()
@@ -489,7 +496,7 @@ require("lazy").setup(
         { "kosayoda/nvim-lightbulb" },
       },
       config = function()
-        local nvim_lsp = require('lspconfig')
+        local nvim_lsp = vim.lsp.config
 
         -- local lsp_status = require("lsp-status")
         -- lsp_status.register_progress()
@@ -504,7 +511,7 @@ require("lazy").setup(
         -- codelens refresh func {
         local function setup_codelens_refresh(client, bufnr)
           local status_ok, codelens_supported = pcall(function()
-            return client.supports_method("textDocument/codeLens")
+            return client:supports_method("textDocument/codeLens")
           end)
           if not status_ok or not codelens_supported then
             return
@@ -533,17 +540,16 @@ require("lazy").setup(
         end
 
         -- }
+        -- define signs {
+        local signs = { Error = "⚠ ", Warn = " ", Hint = "¿ ", Info = " " }
+        for type, icon in pairs(signs) do
+          local hl = "DiagnosticSign" .. type
+          vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+        end
+        -- }
         -- Use an on_attach function to only map the following keys
         -- after the language server attaches to the current buffer
         local on_attach = function(client, bufnr)
-          -- define signs {
-          local signs = { Error = "⚠ ", Warn = " ", Hint = "¿ ", Info = " " }
-          for type, icon in pairs(signs) do
-            local hl = "DiagnosticSign" .. type
-            vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
-          end
-          -- }
-
           -- enable inlay hints {
           vim.lsp.inlay_hint.enable(true)
           -- }
@@ -610,7 +616,7 @@ require("lazy").setup(
         -- Use a loop to conveniently call 'setup' on multiple servers and
         -- map buffer local keybindings when the language server attaches
         local servers = { "rust_analyzer", "yamlls", "jsonls", "ts_ls", 'terraformls',
-          "luau_lsp", "bashls",  "marksman", "vacuum" }
+          "luau_lsp", "bashls",  "marksman", "vacuum", "ruff" }
         -- "ruff",
 
         -- Add openapi filetypes for vacuum
@@ -627,17 +633,18 @@ require("lazy").setup(
           else
             capabilities.textDocument.completion.completionItem.snippetSupport = false
           end
-          nvim_lsp[lsp].setup {
-            root_dir = require('lspconfig.util').find_git_ancestor,
+          vim.lsp.config(lsp, {
+            -- root_dir = require('lspconfig.util').find_git_ancestor,
             on_attach = on_attach,
             capabilities = capabilities,
             flags = {
               debounce_text_changes = 150,
             }
-          }
+          })
+          vim.lsp.enable(lsp)
         end
-        nvim_lsp['basedpyright'].setup {
-          root_dir = require('lspconfig.util').find_git_ancestor,
+        vim.lsp.config('zuban', {
+          root_dir = require('lspconfig.util').find_git_ancestor(),
           on_attach = on_attach,
           single_file_support = true,
           settings = {
@@ -666,8 +673,10 @@ require("lazy").setup(
           flags = {
             debounce_text_changes = 150,
           }
-        }
-        nvim_lsp['clangd'].setup {
+        })
+        vim.lsp.enable('zuban')
+
+        nvim_lsp('clangd', {
           on_attach = on_attach,
           capabilities = capabilities,
           flags = {
@@ -678,8 +687,10 @@ require("lazy").setup(
             "--offset-encoding=utf-16",
             "--limit-results=0",
           }
-        }
-        nvim_lsp['gopls'].setup {
+        })
+        vim.lsp.enable('clangd')
+
+        nvim_lsp('gopls', {
           on_attach = on_attach,
           capabilities = capabilities,
           filetypes = { "go", "gomod" },
@@ -726,8 +737,10 @@ require("lazy").setup(
               -- buildFlags = {"-tags", "functional"}
             }
           }
-        }
-        nvim_lsp.lua_ls.setup {
+        })
+        vim.lsp.enable('gopls')
+
+        nvim_lsp("lua_ls", {
           on_attach = on_attach,
           capabilities = capabilities,
           flags = {
@@ -753,7 +766,8 @@ require("lazy").setup(
               },
             },
           },
-        }
+        })
+        vim.lsp.enable('lua_ls')
         --   nvim_lsp.ltex.setup {
         --     on_attach = on_attach,
         --     capabilities = capabilities,
@@ -917,16 +931,16 @@ require("lazy").setup(
         }
       end
     },
+    { "folke/lazydev.nvim",
+      ft = "lua",
+    },
     { "rcarriga/nvim-dap-ui",
       dependencies = {
         "mfussenegger/nvim-dap",
-        "folke/neodev.nvim",
+        "folke/lazydev.nvim",
         "nvim-neotest/nvim-nio"
       },
       config = function()
-        require("neodev").setup({
-          library = { plugins = { "nvim-dap-ui" }, types = true }
-        })
         require("dapui").setup({
           icons = {
             expanded = "-",
@@ -1201,13 +1215,15 @@ require("lazy").setup(
           }
         },
         adapters = {
-          openai = function()
-            return require("codecompanion.adapters").extend("openai", {
-              env = {
-                api_key = "OPENAI_API_KEY",
-              },
-            })
-          end,
+          http = {
+            openai = function()
+              return require("codecompanion.adapters.http").extend("openai", {
+                env = {
+                  api_key = "OPENAI_API_KEY",
+                },
+              })
+            end,
+          }
         },
         display = {
           chat = {
@@ -1217,7 +1233,10 @@ require("lazy").setup(
             fold_context = true,
           },
         },
-      }
+      },
+      init = function()
+        require("plugins.codecompanion.noice"):init()
+      end
     },
     { "ravitemer/mcphub.nvim",
       dependencies = {
@@ -1259,7 +1278,7 @@ require("lazy").setup(
     { "zbirenbaum/copilot.lua",
       config = function()
         require 'copilot'.setup {
-          suggestion = { enabled = false },
+          suggestion = { enabled = true },
         }
       end
     },
@@ -1340,9 +1359,10 @@ require("lazy").setup(
             keyword_length = 0
           },
           sources = cmp.config.sources({
-            { name = 'luasnip' },
+            { name = 'luasnip', max_item_count=2, min_keyword_length=3 },
             { name = 'nvim_lsp' },
-            { name = 'copilot', priority = 1 },
+            { name = 'lazydev' },
+            { name = 'copilot', priority = 0 },
             { name = 'codeium', priority = 1 },
             { name = 'go_deep', max_item_count=5, min_keyword_length=3, priority = 2 },
             { name = 'buffer' },
@@ -1587,9 +1607,6 @@ require("lazy").setup(
     },
     -- }
     -- Rust {
-    { "simrat39/rust-tools.nvim",
-      config = function() require 'rust-tools'.setup {} end
-    },
     -- }
     -- CPP {
     { 'Civitasv/cmake-tools.nvim',
@@ -1659,13 +1676,31 @@ require("lazy").setup(
           table.insert(require('dap').configurations.python, {
             type = 'python',
             request = 'launch',
+            name = 'Run locally RND',
+            program = '${file}',
+            justMyCode = false,
+            cwd='${workspaceFolder}',
+            env = {
+              PYTHONPATH=vim.fn.getcwd() .. ':' .. vim.fn.getcwd() .. '/..',
+              AWS_PROFILE='rnd',
+              PYTHONUNBUFFERED='1',
+              API_STAGE='staging',
+              ZESTY_DISK_VERSION='v6',
+              ZESTY_EMULATOR='False',
+              ZESTY_END_TO_END_TEST='False',
+              ZESTY_LOGGER_CONSOLE_LEVEL='DEBUG'}
+          })
+
+          table.insert(require('dap').configurations.python, {
+            type = 'python',
+            request = 'launch',
             name = 'Run locally Staging',
             program = '${file}',
             justMyCode = false,
             cwd='${workspaceFolder}',
             env = {
               PYTHONPATH=vim.fn.getcwd() .. ':' .. vim.fn.getcwd() .. '/..',
-              AWS_PROFILE='default',
+              AWS_PROFILE='staging',
               PYTHONUNBUFFERED='1',
               API_STAGE='staging',
               ZESTY_DISK_VERSION='v6',

@@ -27,7 +27,7 @@
     set virtualedit=onemore                         " Allow virtual editing everything
     set history=250                                 " Moar history!
     set hidden                                      " allow switching buffers without writing
-    set lazyredraw                                  " Don't redraw on every sneeze
+    "set lazyredraw                                  " Don't redraw on every sneeze
     set completeopt=menu,menuone,noselect           " Always show completion menu, don't auto-insert/select
     set noshowmode                                  " Don't show current mode in status line
     set laststatus=2                                " Use single status line
@@ -151,16 +151,9 @@ so $HOME/.config/nvim/bindings/bindings.vim
   colorscheme tokyonight
 " }}}
 
-" UltiSNips {{{
-  let g:UltiSnipsExpandTrigger            =  "<nop>"
-  let g:UltiSnipsListSnippets             =  "<nop>"
-  let g:UltiSnipsJumpForwardTrigger       =  "<nop>"
-  let g:UltiSnipsJumpBackwardTrigger      =  "<nop>"
-" }}}"
-
 " Go {{{
   " autocmd BufWritePre *.go :silent! lua require('go.format').gofmt() 
-  autocmd BufWritePre (InsertLeave?) <buffer> lua vim.lsp.buf.formatting_sync(nil,500)
+  autocmd BufWritePre *.go lua vim.lsp.buf.format({ async = false, timeout_ms = 500 })
   let g:go_code_completion_enabled = 0
 " }}}
 
@@ -446,8 +439,4 @@ so $HOME/.config/nvim/bindings/bindings.vim
     endfunction
     nnoremap <silent><leader>jkjk :call PulseCursorLine()<CR>
   " }}}
-" }}}
-
-" SymbolsOutline {{{
-  autocmd FileType Outline setlocal signcolumn=no
 " }}}
