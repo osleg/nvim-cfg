@@ -53,6 +53,13 @@ require("lazy").setup( {
         },
         search = {
           pattern = [[\b(KEYWORDS)\s*\(*\w*\)*:]],
+        },
+        keywords = {
+          FIXME = {
+            icon = " ",
+            color = "error",
+            alt = { "FIX", "BUG", "FIXIT", "ISSUE" },
+          }
         }
       }
     },
