@@ -1057,6 +1057,9 @@ require("lazy").setup( {
         require 'nvim-navic'.setup {}
       end
     },
+    { 'RRethy/vim-illuminate'},
+    -- }
+
     -- Just {
     {
       "IndianBoy42/tree-sitter-just",
@@ -1064,7 +1067,6 @@ require("lazy").setup( {
         require('tree-sitter-just').setup({})
       end
     },
-    -- }
     -- }
 
     -- completion {
