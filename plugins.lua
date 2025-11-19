@@ -289,6 +289,7 @@ require("lazy").setup( {
         "rcarriga/nvim-notify",
       }
     },
+    -- strudel.cc plugin {'gruvw/strudel.nvim'},
     -- }
 
     -- Telescope {
@@ -976,7 +977,7 @@ require("lazy").setup( {
             {
               elements = {
                 "repl",
-                "console"
+                -- "console"
               },
               position = "bottom",   -- Can be "bottom" or "top"
               size = 10,
